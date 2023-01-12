@@ -13,7 +13,7 @@ int main (int argc, char *argv[])
 	
 //	printf("%s \n",argv[0]);
 
-/*	shar * tetstr = "hello"; test
+/*	shar * tetstr = "hello";
 	int num = 3;
 */
 	for(int i = argc-1;i>=0;i--)

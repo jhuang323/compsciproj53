@@ -6,7 +6,7 @@ INCLUDE=include
 
 default: $(SDEPS)
 	mkdir -p $(BDIR)
-	$(CC) -o $(BDIR)/hw0.out $(DEPS) -I $(INCLUDE)
+	$(CC) -g -o $(BDIR)/hw0.out $(DEPS) -I $(INCLUDE)
 
 clean:
 	rm -rf $(BDIR)
