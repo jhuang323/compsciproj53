@@ -814,11 +814,6 @@ int functhoption(int argc,char *argv[])
         fprintf(stderr,"%d %d %d\n",occurancecount,charcounter,countline);
 
     }
-    else
-    {
-        //no s option
-        fprintf(stderr,"%d\n",occurancecount);
-    }
 
     
     
