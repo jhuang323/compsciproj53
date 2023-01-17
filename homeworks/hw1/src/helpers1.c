@@ -290,6 +290,9 @@ int functloption(int argc,char *argv[])
 
     //prevnewline
     int prevnewline = 0;
+
+    //startingcharisdelimit
+    int startcharcheckdelim = 1;
     
 
     while((cchar = getchar()) != EOF)
@@ -302,11 +305,13 @@ int functloption(int argc,char *argv[])
         if(cchar == '\n' || cchar == ' ')
         {
             //check of \0 for currentchar
-            if(curcheckchar == '\0')
+            if(curcheckchar == '\0' && (startcharcheckdelim == 1))
             {
                 printf("%d:%d\n",countline,countword);
                 occurancecount++;
             }
+
+            
 
             //reset ptr
             findwordptr = argv[2];
@@ -335,6 +340,21 @@ int functloption(int argc,char *argv[])
                 curcheckchar = *findwordptr;
                 // putchar(curcheckchar);
                 // printf("updated char: %d",curcheckchar);
+
+                //if prev char is delim
+                if(prevcharnotdelimit == 0)
+                {
+                    //set starting char delim to 1
+                    startcharcheckdelim = 1;
+
+                }
+                // else
+                // {
+                //     //set to 1
+                //     startcharcheckdelim = 1;
+
+                // }
+
             }
             else
             {
@@ -342,6 +362,9 @@ int functloption(int argc,char *argv[])
                 //reset ptr
                 findwordptr = argv[2];
                 curcheckchar = *findwordptr;
+
+                //reset startingchar delim check
+                startcharcheckdelim = 0;
             }
 
             //test add to word
@@ -358,7 +381,7 @@ int functloption(int argc,char *argv[])
         }
 
         //check prev char is not delimit
-        if(cchar != ' ')
+        if((cchar != ' ') && (cchar != '\n'))
         {
             prevcharnotdelimit = 1;
         }
@@ -393,7 +416,7 @@ int functloption(int argc,char *argv[])
         // printf("\n");
     }
     // case where word appears at end of line
-    if(curcheckchar == '\0')
+    if(curcheckchar == '\0' && (startcharcheckdelim == 1))
     {
         printf("%d:%d\n",countline,countword);
         occurancecount++;
@@ -498,6 +521,11 @@ int functhoption(int argc,char *argv[])
 
     int controladd = 0; // controls whether char is added to dynamic str
 
+    //startingcharisdelimit
+    int startcharcheckdelim = 1;
+
+
+
     //temp store the targetword
     // char * targetwordarraytemp = (char *)malloc((strlen(findwordptr)+3) * sizeof(char));
     // int temptargetwordarraycounter = 0;
@@ -515,7 +543,7 @@ int functhoption(int argc,char *argv[])
         if(cchar == '\n' || cchar == ' ')
         {
             //check of \0 for currentchar
-            if(curcheckchar == '\0')
+            if(curcheckchar == '\0' && (startcharcheckdelim == 1))
             {
                 printf("\x1B[%s;%sm",coptionfg,coptionbg);
                 // printf("thesttore detect: \n%s",teststr);
@@ -586,7 +614,7 @@ int functhoption(int argc,char *argv[])
             // printf("comparing %d %d\n",tempcompcchar,curcheckchar);
 
 
-            if(tempcompcchar == curcheckchar)
+            if(tempcompcchar == curcheckchar )
             {
                 // printf(" matched ");
                 //matches increment findwordptr
@@ -598,6 +626,15 @@ int functhoption(int argc,char *argv[])
 
                 //control add = 1
                 controladd = 1;
+
+
+                //if prev char is delim
+                if(prevcharnotdelimit == 0)
+                {
+                    //set starting char delim to 1
+                    startcharcheckdelim = 1;
+
+                }
 
                 //print teststr
                 // printf("printing: %s",teststr);
@@ -626,21 +663,25 @@ int functhoption(int argc,char *argv[])
 
 
                 
-            //free
-            // free(teststr);
-            //alloc
-            // teststr = (char *) malloc(sizeof(char) * defaultsizeteststr);
+                //free
+                // free(teststr);
+                //alloc
+                // teststr = (char *) malloc(sizeof(char) * defaultsizeteststr);
 
-            
-            // printf("reeeallso\n");
+                
+                // printf("reeeallso\n");
 
-            //reset tstr
-            tststrsize = defaultsizeteststr;
+                //reset tstr
+                tststrsize = defaultsizeteststr;
 
-            //reset charinteststrcount
-            charinteststrcount = 0;
+                //reset charinteststrcount
+                charinteststrcount = 0;
 
-            teststr[0]= '\0';
+                teststr[0]= '\0';
+
+
+                //reset startingchar delim check
+                startcharcheckdelim = 0;
 
                 //put things in the temptargetarrayback
                 // for(int i = 0;i<=temptargetwordarraycounter;i++)
@@ -698,7 +739,7 @@ int functhoption(int argc,char *argv[])
         }
 
         //check prev char is not delimit
-        if(cchar != ' ')
+        if((cchar != ' ') && (cchar != '\n'))
         {
             prevcharnotdelimit = 1;
         }
@@ -782,7 +823,7 @@ int functhoption(int argc,char *argv[])
 
 
     // case where word appears at end of line
-    if(curcheckchar == '\0')
+    if(curcheckchar == '\0' && (startcharcheckdelim == 1))
     {
 
         printf("\x1B[%s;%sm",coptionfg,coptionbg);
