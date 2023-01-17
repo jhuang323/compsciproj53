@@ -12,7 +12,7 @@ void printtest()
 
 int checkreqoptions(int argc,char *argv[])
 {
-    //ret 1 true so errors
+    //ret 1 true so errors git
     //check  argc >=2
     printf("argc %d",argc);
     if(argc < 2)

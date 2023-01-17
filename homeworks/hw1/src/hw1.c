@@ -9,7 +9,7 @@
 int main(int argc, char *argv[]) {
     // Insert your hw1 code here    
 
-    //Input validation
+    //Input validation git
 
     // int retcheckrequired = checkreqoptions(argc,argv);
     // printf("returnval: %d",retcheckrequired);

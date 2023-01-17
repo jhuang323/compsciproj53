@@ -1,4 +1,4 @@
-// Useage statement
+// Useage statement git
 #define USAGE "usage:\n\
                53wgrep -n\n\
                53wgrep -l WORD [-I] [-S]\n\
