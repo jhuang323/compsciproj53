@@ -14,7 +14,13 @@ int checkreqoptions(int argc,char *argv[])
 {
     //ret 1 true so errors git
     //check  argc >=2
-    printf("argc %d",argc);
+    printf("argc %d\n",argc);
+
+    for(int i; i < argc; i++)
+    {
+        printf("arg: %s\n",argv[i]);
+    }
+
     if(argc < 2)
     {
         //errror with args
@@ -84,6 +90,7 @@ int checkreqoptions(int argc,char *argv[])
     }
     else if(strcmp(argv[1],"-h") == 0)
     {
+        printf("h arg detect: \n");
 
         //-h option
         if(argc >= 3)
@@ -164,7 +171,13 @@ int checkreqoptions(int argc,char *argv[])
 
                 printf("s %d i %d\n",sargcount,iargcount);
 
-                if(sargcount == 1 || iargcount == 1 || cargcount == 1)
+                int totalargcount = 0;
+                totalargcount += sargcount;
+                totalargcount += iargcount;
+                totalargcount += cargcount;
+
+
+                if(totalargcount > 0 && totalargcount <=3)
                 {
                     return 1;
                 }
