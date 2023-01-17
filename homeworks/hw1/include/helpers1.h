@@ -1,4 +1,4 @@
-// Declare all helper functions for hw1 in this file git
+// Declare all helper functions for hw1 in this file git v2
 # ifndef HW1_HELPERS
 # define HW1_HELPERS
 
