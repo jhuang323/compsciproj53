@@ -10,16 +10,81 @@ void printtest()
     printf("hello!");
 }
 
+int alldigitscheck(char * astr)
+{
+    //returns 1 if contains all digits
+    for (int i = 0; i < strlen(astr);i++)
+    {
+        if(isdigit(astr[i]) == 0)
+        {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+int validargcfgbg(char *argvptr[])
+{
+    //validate FG and BG 1 = valid
+
+    // printf("in validargfgbg-----------------------\n");
+
+    // printf("current: %s\n",*argvptr);
+    //move argvptr 1 to right
+    argvptr++;
+    // printf("current: %s\n",*argvptr);
+    int fgnum = -1;
+    if(alldigitscheck(*argvptr))
+    {
+
+        fgnum = atoi(*argvptr);
+    }
+    //move argvptr 1 to right
+    argvptr++;
+    // printf("current: %s\n",*argvptr);
+    int bgnum = -1;
+    if(alldigitscheck(*argvptr))
+    {
+        bgnum = atoi(*argvptr);
+    }
+    
+
+    // printf("nums %d %d\n",fgnum,bgnum);
+
+    if(fgnum < 30 || fgnum > 37)
+    {
+        // printf("false detect1\n");
+        //return false
+        return 0;
+    }
+    if(bgnum < 40 || bgnum > 47)
+    {
+        // printf("false detect2\n");
+        //return false
+        return 0;
+    }
+
+    //return true
+    return 1;
+
+    // printf("the fg bg: %d %d\n",fgnum,bgnum);
+
+    // printf("current: %s\n",*argvptr);
+
+    
+}
+
 int checkreqoptions(int argc,char *argv[])
 {
     //ret 1 true so errors git
     //check  argc >=2
-    printf("argc %d\n",argc);
+    // printf("argc %d\n",argc);
 
-    for(int i; i < argc; i++)
-    {
-        printf("arg: %s\n",argv[i]);
-    }
+    // for(int i; i < argc; i++)
+    // {
+    //     printf("arg: %s\n",argv[i]);
+    // }
 
     if(argc < 2)
     {
@@ -70,7 +135,12 @@ int checkreqoptions(int argc,char *argv[])
                     }
                 }
 
-                printf("s %d i %d\n",sargcount,iargcount);
+                // printf("s %d i %d\n",sargcount,iargcount);
+
+                if(sargcount > 1 || iargcount > 1)
+                {
+                    return 0;
+                }
 
                 if(sargcount == 1 || iargcount == 1)
                 {
@@ -90,7 +160,7 @@ int checkreqoptions(int argc,char *argv[])
     }
     else if(strcmp(argv[1],"-h") == 0)
     {
-        printf("h arg detect: \n");
+        // printf("h arg detect: \n");
 
         //-h option
         if(argc >= 3)
@@ -104,47 +174,70 @@ int checkreqoptions(int argc,char *argv[])
 
                 int ctesttwo = 0;
 
-                for(int i = 3;i < argc;i++)
+                int i = 3;
+
+                while(i < argc)
                 {
 
-                    if(ctesttwo > 0 && ctesttwo < 3)
-                    {
-                        printf("cdetect val %s\n",argv[i]);
-                        //test fg
-                        if (ctesttwo == 1)
-                        {
-                            printf("%d less than \n", atoi(argv[i]) > 37);
-                            //test fg
-                            if(atoi(argv[i]) < 30 || atoi(argv[i]) > 37)
-                            {
-                                return 0;
-                            }
-                        }
-                        //testbg
-                        if (ctesttwo == 2)
-                        {
-                            //test bg
-                            if(atoi(argv[i]) < 40 || atoi(argv[i]) > 47)
-                            {
-                                return 0;
-                            }
-                        }
-                        printf("added 11 %d\n",ctesttwo);
-                        ctesttwo++;
-                    }
+                    // if(ctesttwo > 0 && ctesttwo < 3)
+                    // {
+                    //     printf("cdetect val %s\n",argv[i]);
+                    //     //test fg
+                    //     if (ctesttwo == 1)
+                    //     {
+                    //         printf("%d less than \n", atoi(argv[i]) > 37);
+                    //         //test fg
+                    //         if(atoi(argv[i]) < 30 || atoi(argv[i]) > 37)
+                    //         {
+                    //             return 0;
+                    //         }
+                    //     }
+                    //     //testbg
+                    //     if (ctesttwo == 2)
+                    //     {
+                    //         //test bg
+                    //         if(atoi(argv[i]) < 40 || atoi(argv[i]) > 47)
+                    //         {
+                    //             return 0;
+                    //         }
+                    //     }
+                    //     printf("added 11 %d\n",ctesttwo);
+                    //     ctesttwo++;
+                    // }
 
-                    printf("ctest %d",ctesttwo);
+                    // printf("ctest %d",ctesttwo);
 
                     if(strcmp(argv[i],"-C") == 0 && ctesttwo == 0)
                     {
                         //must have next two args
-                        printf("frst in c\n");
-                        printf("%d;%d",i+3,argc);
+                        // printf("frst in c\n");
+                        // printf("%d;%d",i+3,argc);
                         if(argc < (i+3))
                         {
                             //raise error
                             return 0;
                         }
+
+                        // printf("i num %d\n",i);
+
+                        if(validargcfgbg(argv + i) == 1)
+                        {
+
+                            //set cargto 1
+                            cargcount++;
+
+                            //increment i by 2
+                            i = i + 2;
+                        }
+                        else
+                        {
+                            //incorrect FG, BG
+                            return 0;
+                        }
+
+                        // printf("validargcfgbg return: %d \n",retvalidarggfunct);
+
+
 
                         ctesttwo++;
                     }
@@ -156,25 +249,32 @@ int checkreqoptions(int argc,char *argv[])
                     {
                         iargcount++;
                     }
-                    else if(ctesttwo == 0 || ctesttwo > 3)
+                    else
                     {
-                       printf("ret error");
+                    //    printf("ret error");
                         //not match either
                         return 0;
                     }
 
-                    if(ctesttwo == 3)
-                    {
-                        ctesttwo++;
-                    }
+                    // if(ctesttwo == 3)
+                    // {
+                    //     ctesttwo++;
+                    // }
+
+                    i++;
                 }
 
-                printf("s %d i %d\n",sargcount,iargcount);
+                // printf("s %d i %d\n",sargcount,iargcount);
 
                 int totalargcount = 0;
                 totalargcount += sargcount;
                 totalargcount += iargcount;
                 totalargcount += cargcount;
+
+                if(sargcount > 1 || iargcount > 1 || cargcount > 1)
+                {
+                    return 0;
+                }
 
 
                 if(totalargcount > 0 && totalargcount <=3)

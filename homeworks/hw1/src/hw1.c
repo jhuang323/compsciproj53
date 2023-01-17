@@ -12,15 +12,12 @@ int main(int argc, char *argv[]) {
     //Input validation git
 
     int retcheckrequired = checkreqoptions(argc,argv);
-    printf("returnval: %d",retcheckrequired);
+    // printf("returnval: %d",retcheckrequired);
 
     if(retcheckrequired == 0)
     {
         //print usage to stderr
-        fprintf(stderr,"usage:\n");
-        fprintf(stderr,"53wgrep -n\n");
-        fprintf(stderr,"53wgrep -l WORD [-I] [-S]\n");
-        fprintf(stderr,"53wgrep -h WORD [-I] [-S] [-C FG BG]\n");
+        fprintf(stderr,USAGE);
 
 
         //error with args

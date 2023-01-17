@@ -4,6 +4,10 @@
 
 void printtest();
 
+int alldigitscheck(char * astr);
+
+int validargcfgbg(char *argvptr[]);
+
 int checkreqoptions(int argc,char *argv[]);
 
 //function for -n option
