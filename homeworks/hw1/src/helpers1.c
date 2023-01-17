@@ -454,7 +454,7 @@ int functhoption(int argc,char *argv[])
         //check C option
         if(strcmp(argv[i],"-C") == 0)
         {
-            printf("argsfg: %s",argv[i+1]);
+            // printf("argsfg: %s",argv[i+1]);
             coptionfg = (argv[i+1]);
             coptionbg = (argv[i+2]);
 
