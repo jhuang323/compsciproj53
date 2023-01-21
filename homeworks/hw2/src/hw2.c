@@ -213,6 +213,15 @@ void ModFile_Printer(void* data, void* fp, int flag) {
 }
 
 void ModFile_Deleter(void* data) {
+    //cast data as Modfile*
+    // free((ModFile*))
+    printf("testmodfile deleter\n");
+
+    ModFile * mdfileptr = data;
+    //free string in Modfile
+    free(mdfileptr->filename);
+    //then free the modfile struct ???
+    free(mdfileptr);
 
 }
 
@@ -220,7 +229,32 @@ node_t* FindInList(list_t* list, void* token)  {
     return NULL;
 }
 
+//my function
+void recurdestroylnchain(node_t * anode,list_t * alist)
+{
+    printf("recursive destroy\n");
+
+    if(anode->next != NULL)
+    {
+        recurdestroylnchain(anode->next,alist);
+        
+    }
+    printf("freeing\n");
+    //call deleter
+    alist->deleter(anode->data);
+    //free current node
+    free(anode);
+}
+
 void DestroyList(list_t** list) {
+    //given linked list
+    list_t * theliststructptr = *(list);
+    printf("in the destroy list\n");
+
+    recurdestroylnchain(theliststructptr->head,theliststructptr);
+
+    //when done free current list_t??
+    free(theliststructptr);
 
 }
 
