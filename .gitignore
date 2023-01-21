@@ -363,3 +363,5 @@ MigrationBackup/
 FodyWeavers.xsd
 homeworks/test/main.c
 homeworks/hw1_huangjk2.tar
+homeworks/test/Makefile
+homeworks/test/src/test.c

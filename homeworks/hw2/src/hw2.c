@@ -30,14 +30,14 @@ char* myStrCpy(char* str, char* delimiters) {
         while(*mvdelimptr != '\0')
         {
             char selchar = *mvdelimptr;
-            printf("chartest: %c\n",selchar);
+            // printf("chartest: %c\n",selchar);
 
             char* retstrchrptr = myStrChar(str,selchar);
 
             if(retstrchrptr != NULL)
             {
                 int calclen = retstrchrptr-str;
-                printf("the diff %d\n",calclen);
+                // printf("the diff %d\n",calclen);
 
                 if(calclen < minstrlen)
                 {
@@ -57,7 +57,7 @@ char* myStrCpy(char* str, char* delimiters) {
 
     }
 
-    printf("Final Min strlen: %d\n",minstrlen);
+    // printf("Final Min strlen: %d\n",minstrlen);
 
     //malloc to create new str
 
@@ -75,7 +75,7 @@ char* myStrCpy(char* str, char* delimiters) {
 
     for(int i = 0;i<minstrlen;i++)
     {
-        printf("copy %c\n",*givenstrptr);
+        // printf("copy %c\n",*givenstrptr);
 
         *tempretstrptr = *givenstrptr;
 
@@ -87,7 +87,7 @@ char* myStrCpy(char* str, char* delimiters) {
     //add \0 to end
     *tempretstrptr = '\0';
     
-    printf("final str: %s\n",functretptr);
+    // printf("final str: %s\n",functretptr);
 
     return functretptr;
 
