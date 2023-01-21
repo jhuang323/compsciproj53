@@ -3,4 +3,10 @@
 
 // Declare all helper functions for hw2 in this file
 
+//strchar
+char* myStrChar(char* str, int achar);
+
+//strlen
+int myStrLen(char* str);
+
 #endif
