@@ -179,6 +179,28 @@ int ModFileABC_Comparator(const void* file1, const void* file2) {
 
 int ModFileTotal_Comparator(const void* file1, const void* file2) {
     // return -999;
+    unsigned int file1totalinsdel = ((ModFile *)file1)->inserts + ((ModFile *)file1)->deletes;
+    unsigned int file2totalinsdel = ((ModFile *)file2)->inserts + ((ModFile *)file2)->deletes;
+
+    printf("total file1: %d\n",file1totalinsdel);
+    printf("total file2: %d\n",file2totalinsdel);
+
+    //if file1 ins+del < file2 ins+del
+    if(file1totalinsdel < file2totalinsdel)
+    {
+        //return -1
+        return -1;
+    }
+    else if(file1totalinsdel > file2totalinsdel)
+    {
+        //return 1
+        return 1;
+    }
+    else
+    {
+        //return 0
+        return 0;
+    }
 }
 
 // Part 2 Functions to implement
