@@ -95,15 +95,90 @@ char* myStrCpy(char* str, char* delimiters) {
 
 // Part 1 Functions to implement
 ModFile* PutModFile(int ins, int dels, char* filename, ModFile* mf) {
-    return NULL;
+    // return NULL;
+
+    //if mf null case
+    if(mf == NULL)
+    {
+        //null case create new struct
+
+        ModFile * retnewlycreatedmf = (ModFile *)malloc(sizeof(ModFile));
+
+        //init ins
+        retnewlycreatedmf->inserts = ins;
+        //init delets
+        retnewlycreatedmf->deletes = dels;
+        //init filename 
+        retnewlycreatedmf->filename = filename;
+
+        //return the modfile
+        return retnewlycreatedmf;
+
+    }
+    else
+    {
+        // for case not null
+
+        //return null if filename given is NULL
+        if(filename == NULL)
+        {
+            return NULL;
+        }
+
+        //return NULL if ins or del is negative
+        if(ins < 0 || dels < 0)
+        {
+            return NULL;
+        }
+
+        //check if filename matches
+        if(myStrCmp(filename,mf->filename) != 0)
+        {
+            //return null error
+            return NULL;
+        }
+
+        //update mf struct
+        //update ins
+        mf->inserts = ins;
+        //update dels
+        mf->deletes = dels;
+
+
+        //return the mf pointer
+        return mf;
+    }
 }
 
 int ModFileABC_Comparator(const void* file1, const void* file2) {
-    return -999;
+    // return -999;
+
+    printf("test print filename1 %s\n",((ModFile *)file1)->filename);
+    printf("test print filename2 %s\n",((ModFile *)file2)->filename);
+
+    int comparereslt = myStrCmp(((ModFile *)file1)->filename,((ModFile *)file2)->filename);
+    printf("the comparison: %d\n",comparereslt);
+
+    if(comparereslt < 0)
+    {
+        //return -1
+        return -1;
+    }
+    else if(comparereslt > 0)
+    {
+        //return 1
+        return 1;
+
+    }
+    else
+    {
+        //return 0
+        return 0;
+    }
 }
 
 int ModFileTotal_Comparator(const void* file1, const void* file2) {
-    return -999;
+    // return -999;
 }
 
 // Part 2 Functions to implement
