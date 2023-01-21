@@ -108,8 +108,8 @@ ModFile* PutModFile(int ins, int dels, char* filename, ModFile* mf) {
         retnewlycreatedmf->inserts = ins;
         //init delets
         retnewlycreatedmf->deletes = dels;
-        //init filename 
-        retnewlycreatedmf->filename = filename;
+        //init filename uses mystrcopy
+        retnewlycreatedmf->filename = myStrCpy(filename,NULL);
 
         //return the modfile
         return retnewlycreatedmf;
@@ -205,6 +205,8 @@ int ModFileTotal_Comparator(const void* file1, const void* file2) {
 
 // Part 2 Functions to implement
 void ModFile_Printer(void* data, void* fp, int flag) {
+
+    
 
 }
 
