@@ -205,8 +205,10 @@ int ModFileTotal_Comparator(const void* file1, const void* file2) {
 
 // Part 2 Functions to implement
 void ModFile_Printer(void* data, void* fp, int flag) {
+    // printf("modfile printer test\n");
 
-    
+    //pretty print
+    fprintf((FILE*)fp,"Total Inserts:%d\tTotal Deletes:%d\t%s\n",((ModFile *)data)->inserts,((ModFile *)data)->deletes,((ModFile *)data)->filename);
 
 }
 
