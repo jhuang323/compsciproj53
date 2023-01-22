@@ -87,3 +87,44 @@ int myStrCmp(const char* str1,const char* str2)
 
 }
 
+//insertinrevorder function test
+void InsertInReverseOrder(list_t* list, void* val_ref) {
+    if(list == NULL || val_ref == NULL)
+        return;
+    if (list->length == 0) {
+        InsertAtHead(list, val_ref);
+        return;
+    }
+
+    node_t** head = &(list->head);
+    node_t* new_node;
+    new_node = malloc(sizeof(node_t));
+    new_node->data = val_ref;
+    new_node->next = NULL;
+
+    if (list->comparator(new_node->data, (*head)->data) > 0) {
+        new_node->next = *head;
+        *head = new_node;
+    } else if ((*head)->next == NULL) {
+        (*head)->next = new_node;
+    } else {
+        node_t* prev = *head;
+        node_t* current = prev->next;
+        while (current != NULL) {
+            if (list->comparator(new_node->data, current->data) < 0) {
+                if (current->next != NULL) {
+                    prev = current;
+                    current = current->next;
+                } else {
+                    current->next = new_node;
+                    break;
+                }
+            } else {
+                prev->next = new_node;
+                new_node->next = current;
+                break;
+            }
+        }
+    }
+    list->length++;
+}

@@ -16,4 +16,7 @@ int myStrCmp(const char* str1,const char* str2);
 //destroy listnode chain
 void recurdestroylnchain(node_t * anode,list_t * alist);
 
+//test insertinreverse order for LL
+void InsertInReverseOrder(list_t* list, void* val_ref);
+
 #endif

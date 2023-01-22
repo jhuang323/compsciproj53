@@ -226,7 +226,44 @@ void ModFile_Deleter(void* data) {
 }
 
 node_t* FindInList(list_t* list, void* token)  {
-    return NULL;
+    // return NULL;
+    printf("In findin list function\n");
+
+    //check if token is NULL
+    if(token == NULL)
+    {
+        //return null
+        return NULL;
+    }
+    
+    //using the specific comparator in list
+
+    node_t * mvnodeptr = list->head;
+    // ModFile_Printer(mvnodeptr->data,stdout,1);
+
+    while(mvnodeptr != NULL)
+    {
+        printf("in findln --pointer: \n");
+        ModFile_Printer(mvnodeptr->data,stdout,1);
+
+        //call comparator function
+        int comparterfunctretval = list->comparator(mvnodeptr->data,token);
+
+        printf("**comparatorfunct retval: %d\n",comparterfunctretval);
+
+        //return if comparevalfunctreturn is 0
+        if(comparterfunctretval == 0)
+        {
+            //return pointer to node in LL
+            return mvnodeptr;
+        }
+
+        //increment mvnodeptr to next
+        mvnodeptr = mvnodeptr->next;
+    }
+
+    //end case where mvnodeptr is at the end return
+    return mvnodeptr;
 }
 
 //my function
@@ -255,6 +292,8 @@ void DestroyList(list_t** list) {
 
     //when done free current list_t??
     free(theliststructptr);
+    //set the list to be null ptr
+    *(list) = NULL;
 
 }
 

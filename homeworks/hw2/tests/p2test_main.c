@@ -1,10 +1,11 @@
 #include "linkedlist.h"
 #include "hw2.h"
+#include "helpers2.h"
 
 int main()
 {   
     //test pretty print
-    list_t* testlist = CreateList(&ModFileABC_Comparator,&ModFile_Printer,&ModFile_Deleter);
+    list_t* testlist = CreateList(&ModFileTotal_Comparator,&ModFile_Printer,&ModFile_Deleter);
 
 
 
@@ -16,15 +17,31 @@ int main()
     ModFile* f1 = PutModFile(2,1,"MarsSplashScreen.java", NULL);
     ModFile* f2 = PutModFile(411,0,"tools/ICS51_Minesweeper.java", NULL);
     ModFile* f3 = PutModFile(1,7,"mars/venus/HelpAboutAction.java", NULL);
-    InsertInOrder(testlist, (void*) f3);
-    InsertInOrder(testlist, (void*) f2);
-    InsertInOrder(testlist, (void*) f1);
+    ModFile* f4 = PutModFile(1,8,"tools/ICS51_Minesweepedr.java", NULL);
+    InsertInReverseOrder(testlist, (void*) f3);
+    InsertInReverseOrder(testlist, (void*) f1);
+    InsertInReverseOrder(testlist, (void*) f2);
+    InsertInReverseOrder(testlist, (void*) f4);
     PrintLinkedList(testlist,stdout);
 
     printf("lenght in testlist: %d\n",testlist->length);
 
-    //testing delet LL
-    DestroyList(&testlist);
+
+    //test find in list
+    // node_t * testfindinlistnode = FindInList(testlist,f4);
+
+    // //testing delet LL
+    // DestroyList(&testlist);
+
+    // //test if testlist is nullptr
+    // if(testlist == NULL)
+    // {
+    //     printf("The testlist at the end is NULL\n");
+    // }
+    // else
+    // {
+    //     printf("Test list is not NULL\n");
+    // }
 
     // free(testlist);
 
