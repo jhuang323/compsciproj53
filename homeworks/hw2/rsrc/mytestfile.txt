@@ -1,4 +1,7 @@
+1	7	mars/venus/HelpAboutAction.java
 2	1	MarsSplashScreen.java
 411	0	tools/ICS51_Minesweeper.java
 1	7	mars/venus/HelpAboutAction.java
+4	44	tools/ICS51_Minesweeper.java
+
 4	4	tools/ICS51_Minesweeper.java

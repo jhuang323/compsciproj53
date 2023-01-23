@@ -5,7 +5,7 @@
 int main()
 {   
     //test pretty print
-    list_t* testlist = CreateList(&ModFileABC_Comparator,&ModFile_Printer,&ModFile_Deleter);
+    list_t* testlist = CreateList(&ModFileTotal_Comparator,&ModFile_Printer,&ModFile_Deleter);
 
 
 
@@ -36,14 +36,23 @@ int main()
         printf("File error\n");
     }
 
-    ProcessModFile(fptr,testlist,'a');
+    ProcessModFile(fptr,testlist,'f');
     // PrintLinkedList(testlist,stdout);
 
-    fclose(fptr);
+    
 
     printf("\n\n\nTHE debuglist\n");
     PrintLinkedList(testlist,stdout);
 
+    //test if we can print new lines after (yes)
+    // printf("\n\ntesting\n");
+    // char buf[201];
+    // fgets(buf,201,fptr);
+    // printf("theline:\n%s\n",buf);
+
+
+    //close file
+    fclose(fptr);
 
 
 

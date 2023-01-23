@@ -281,7 +281,10 @@ void recurdestroylnchain(node_t * anode,list_t * alist)
     }
     printf("freeing\n");
     //call deleter
-    alist->deleter(anode->data);
+    if(anode->data != NULL)
+    {
+        alist->deleter(anode->data);
+    }
     //free current node
     free(anode);
 }
@@ -314,10 +317,19 @@ void ProcessModFile(FILE* fp, list_t* list, char ordering) {
 
     printf("after init %ld\n",sizeof(char)*(MAX_LINESIZE + 1));
 
+    //test creating new list with ABC comparator
+    list_t * tempABCcomplist = CreateList(&ModFileABC_Comparator,&ModFile_Printer,&ModFile_Deleter);
+
     while(fgets(linechunk,(MAX_LINESIZE + 1),fp) != NULL)
     {
         printf("Theline is :\n");
         printf("%s|*\n",linechunk);
+
+        if(myStrCmp(linechunk,"\n") == 0)
+        {
+            printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!n DETECTED!!!!!!!!!!!!!!\n");
+            break;
+        }
 
         printf("test splitting\n");
 
@@ -345,18 +357,29 @@ void ProcessModFile(FILE* fp, list_t* list, char ordering) {
 
         ModFile * tokenmodfilecompare =  PutModFile(atoi(numinserts),atoi(numdeletions),strfilename,NULL);
 
-        node_t * findinlreslt = FindInList(list,tokenmodfilecompare);
+        node_t * findinlreslt = FindInList(tempABCcomplist,tokenmodfilecompare);
 
         
 
-        if(ordering == 'a')
-        {
-            //option a alphabetical
+        // if(ordering == 'a')
+        // {
+
+            
+            //option a alphabetical and d decreasing
             if(findinlreslt == NULL)
             {
-                //insert in alphabet order
+                if(ordering == 'a' || ordering == 'd')
+                {
+                //insert in alphabet order for a and d options
                 printf("inserting in order--------------------------\n");
-                InsertInOrder(list, (void*)tokenmodfilecompare);
+                InsertInOrder(tempABCcomplist, (void*)tokenmodfilecompare);
+                }
+                else
+                {
+                    //insert in first order
+                    printf("inserting in first order--------------------------\n");
+                    InsertAtTail(tempABCcomplist, (void*)tokenmodfilecompare);
+                }
             }
             else
             {
@@ -368,26 +391,28 @@ void ProcessModFile(FILE* fp, list_t* list, char ordering) {
                 ModFile_Deleter(tokenmodfilecompare);
             }
             
-        }
-        else if(ordering = 'd')
-        {
-            //ording is d decreasing total deletesandinserts
-            if(findinlreslt == NULL)
-            {
-                //insert in alphabet order
-                printf("inserting in revorder--------------------------\n");
-                InsertInReverseOrder(list, (void*)tokenmodfilecompare);
-            }
-            else
-            {
-                //it exists use putmodfile to update it
-                printf("updating in revorder--------------------\n");
-                PutModFile(atoi(numinserts),atoi(numdeletions),strfilename,findinlreslt->data);
+            
+            
+        // }
+        // else if(ordering = 'd')
+        // {
+        //     //ording is d decreasing total deletesandinserts
+        //     if(findinlreslt == NULL)
+        //     {
+        //         //insert in alphabet order
+        //         printf("inserting in revorder--------------------------\n");
+        //         InsertInReverseOrder(list, (void*)tokenmodfilecompare);
+        //     }
+        //     else
+        //     {
+        //         //it exists use putmodfile to update it
+        //         printf("updating in revorder--------------------\n");
+        //         PutModFile(atoi(numinserts),atoi(numdeletions),strfilename,findinlreslt->data);
 
-                //free tokenmodfilecompare only when we know it exists in LL and it is used for comparison only
-                ModFile_Deleter(tokenmodfilecompare);
-            }
-        }
+        //         //free tokenmodfilecompare only when we know it exists in LL and it is used for comparison only
+        //         ModFile_Deleter(tokenmodfilecompare);
+        //     }
+        // }
 
 
         
@@ -397,7 +422,47 @@ void ProcessModFile(FILE* fp, list_t* list, char ordering) {
         free(strfilename);
     }
 
+
+    //after things in the list
+    printf("The AABCcomplist\n");
+    PrintLinkedList(tempABCcomplist,stdout);
+
+    //try to migrate the modfiles to list
+    node_t * mvnodetptrTempABCList = tempABCcomplist->head;
+
+    while(mvnodetptrTempABCList != NULL)
+    {
+        if(ordering == 'a')
+        {
+            //insert in order
+            InsertInOrder(list,(void *)mvnodetptrTempABCList->data);
+        }
+        else if(ordering == 'd')
+        {
+            InsertInReverseOrder(list,(void *)mvnodetptrTempABCList->data);
+        }
+        else if (ordering == 'f')
+        {
+            //insert at tail
+            InsertAtTail(list,(void *)mvnodetptrTempABCList->data);
+        }
+        
+
+
+        //set the data ptr in mvnodeptrtemplist to null
+        mvnodetptrTempABCList->data = NULL;
+
+        //update mvnodeptrtemplist
+        mvnodetptrTempABCList = mvnodetptrTempABCList->next;
+
+    }
+    
+
+    //need to destroy afterwards
+    DestroyList(&tempABCcomplist);
+
     //free linechunk at end
+    
     free(linechunk);
 
 }
