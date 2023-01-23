@@ -14,12 +14,12 @@ int main()
 
     // //insert 1 intolist
     // printf("list with 1 in it:\n");
-    // ModFile* f1 = PutModFile(2,1,"MarsSplashScreen.java", NULL);
+    ModFile* f1 = PutModFile(3,3,"MarsSplashScreen.java", NULL);
     // ModFile* f2 = PutModFile(411,0,"tools/ICS51_Minesweeper.java", NULL);
     // ModFile* f3 = PutModFile(1,7,"mars/venus/HelpAboutAction.java", NULL);
     // ModFile* f4 = PutModFile(1,8,"tools/ICS51_Minesweepedr.java", NULL);
     // InsertInReverseOrder(testlist, (void*) f3);
-    // InsertInReverseOrder(testlist, (void*) f1);
+    InsertInOrder(testlist, (void*) f1);
     // InsertInReverseOrder(testlist, (void*) f2);
     // InsertInReverseOrder(testlist, (void*) f4);
     // PrintLinkedList(testlist,stdout);
@@ -43,6 +43,7 @@ int main()
 
     printf("\n\n\nTHE debuglist\n");
     PrintLinkedList(testlist,stdout);
+    printf("length: %d\n",testlist->length);
 
     //test if we can print new lines after (yes)
     // printf("\n\ntesting\n");

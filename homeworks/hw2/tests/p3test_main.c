@@ -13,7 +13,16 @@ int main() {
     char* email3 = calloc(5,1);     // 5 bytes of space initialized to 0
     strncpy(email3,email2,4);         // String.h functions are not allowed in your HW implemention!! Create your own versions with pointers
 
-    Author jwongma = {name1,email1,1, NULL};
+    //test by creating a modfile
+    list_t* jwongmalistptr = CreateList(&ModFileABC_Comparator,&ModFile_Printer,&ModFile_Deleter);
+    ModFile* f1 = PutModFile(2,1,"MarsSplashScreen.java", NULL);
+    ModFile* f2 = PutModFile(411,0,"tools/ICS51_Minesweeper.java", NULL);
+    ModFile* f3 = PutModFile(1,7,"mars/venus/HelpAboutAction.java", NULL);
+    InsertAtTail(jwongmalistptr, (void*) f1);
+    InsertAtTail(jwongmalistptr, (void*) f2);
+    InsertAtTail(jwongmalistptr, (void*) f3);
+
+    Author jwongma = {name1,email1,1, jwongmalistptr};
     Author* temp = malloc(sizeof(Author));
     temp->fullname = name2;
     temp->email = email2;
@@ -23,7 +32,7 @@ int main() {
     Author* mikes = temp; 
 
     printf("\n******AuthorPrinter Tests******\n");    
-    AuthorPrinter(&jwongma, stdout, 0);
+    AuthorPrinter(&jwongma, stdout, 1);
     printf("\n");    
     AuthorPrinter(mikes, stderr, 1);
 

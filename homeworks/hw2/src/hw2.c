@@ -320,6 +320,16 @@ void ProcessModFile(FILE* fp, list_t* list, char ordering) {
     //test creating new list with ABC comparator
     list_t * tempABCcomplist = CreateList(&ModFileABC_Comparator,&ModFile_Printer,&ModFile_Deleter);
 
+    //migrate modfiles in list to tempABC
+    tempABCcomplist->head = list->head;
+    //set list head to nullptr
+    list->head = NULL;
+    //set tempABCcomplist length to list length
+    tempABCcomplist->length = list->length;
+    //set listlength to 0
+    list->length = 0;
+
+
     while(fgets(linechunk,(MAX_LINESIZE + 1),fp) != NULL)
     {
         printf("Theline is :\n");
@@ -470,7 +480,36 @@ void ProcessModFile(FILE* fp, list_t* list, char ordering) {
 
 // Part 3 Functions to implement
 void AuthorPrinter(void* data, void *fp, int flag) {
+    //check flag
+    if(flag == 0)
+    {
+        //flag is zero
+        fprintf((FILE*)fp,"%s %s,%d,%d\n",((Author*)data)->fullname,((Author*)data)->email,((Author*)data)->commitCount,((Author*)data)->modFileList->length);
 
+    }
+    else
+    {
+        //flag is non zero
+        //extended print
+        fprintf((FILE*)fp,"%s %s,%d\n",((Author*)data)->fullname,((Author*)data)->email,((Author*)data)->commitCount);
+        //call the printfunction of Modlist
+
+        //need while loop to go through the nodes
+        node_t * mvptrinauthormdfilelist = ((Author*)data)->modFileList->head;
+
+        // printf("tesst: %s\n",((Author*)data)->modFileList->head->)
+
+        while(mvptrinauthormdfilelist != NULL)
+        {
+            //print a node
+            ((Author*)data)->modFileList->printer((void *)mvptrinauthormdfilelist->data,fp,1);
+            //update ptr
+            mvptrinauthormdfilelist = mvptrinauthormdfilelist->next;
+        }
+
+        
+
+    }
 }
 
 int AuthorEmailComparator(const void* lhs, const void* rhs)  {
