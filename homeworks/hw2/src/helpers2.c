@@ -80,7 +80,7 @@ int myStrCmp(const char* str1,const char* str2)
         tempstr2ptr++;
     }
 
-    // printf("comparing %d,%d\n",*tempstr1ptr,*tempstr2ptr);
+    // printf("final comparing %d,%d\n",*tempstr1ptr,*tempstr2ptr);
 
     //return str1 -str2 ??
     return *tempstr1ptr - *tempstr2ptr;

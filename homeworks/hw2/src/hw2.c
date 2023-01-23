@@ -5,6 +5,9 @@
 #include "helpers2.h"
 #include "linkedlist.h"
 
+// my macros
+#define MAX_LINESIZE 200
+
 // Part 0 Function to implement
 char* myStrCpy(char* str, char* delimiters) {
     
@@ -57,7 +60,7 @@ char* myStrCpy(char* str, char* delimiters) {
 
     }
 
-    // printf("Final Min strlen: %d\n",minstrlen);
+    // printf("!!!!!!!!!!!!!Final Min strlen: %d\n",minstrlen + 1);
 
     //malloc to create new str
 
@@ -139,10 +142,10 @@ ModFile* PutModFile(int ins, int dels, char* filename, ModFile* mf) {
         }
 
         //update mf struct
-        //update ins
-        mf->inserts = ins;
-        //update dels
-        mf->deletes = dels;
+        //update ins by adding to it
+        mf->inserts += ins;
+        //update dels by adding to it
+        mf->deletes += dels;
 
 
         //return the mf pointer
@@ -153,8 +156,8 @@ ModFile* PutModFile(int ins, int dels, char* filename, ModFile* mf) {
 int ModFileABC_Comparator(const void* file1, const void* file2) {
     // return -999;
 
-    printf("test print filename1 %s\n",((ModFile *)file1)->filename);
-    printf("test print filename2 %s\n",((ModFile *)file2)->filename);
+    printf("test print filename1: %s\n",((ModFile *)file1)->filename);
+    printf("test print filename2: %s\n",((ModFile *)file2)->filename);
 
     int comparereslt = myStrCmp(((ModFile *)file1)->filename,((ModFile *)file2)->filename);
     printf("the comparison: %d\n",comparereslt);
@@ -288,7 +291,13 @@ void DestroyList(list_t** list) {
     list_t * theliststructptr = *(list);
     printf("in the destroy list\n");
 
-    recurdestroylnchain(theliststructptr->head,theliststructptr);
+    //for case where the head is NULL
+    if(theliststructptr->head != NULL)
+    {
+        printf("head is not NULL\n");
+        recurdestroylnchain(theliststructptr->head,theliststructptr);
+    }
+    
 
     //when done free current list_t??
     free(theliststructptr);
@@ -298,6 +307,98 @@ void DestroyList(list_t** list) {
 }
 
 void ProcessModFile(FILE* fp, list_t* list, char ordering) {
+    //reads from FILE
+    printf("IN Process ModFIle: Maxline size: %d\n",MAX_LINESIZE);
+
+    char * linechunk = (char *)malloc(sizeof(char)*(MAX_LINESIZE + 1));
+
+    printf("after init %ld\n",sizeof(char)*(MAX_LINESIZE + 1));
+
+    while(fgets(linechunk,(MAX_LINESIZE + 1),fp) != NULL)
+    {
+        printf("Theline is :\n");
+        printf("%s|*\n",linechunk);
+
+        printf("test splitting\n");
+
+        //pointer that moves as we split
+        char * linecnkptr = linechunk;
+
+        char * numinserts = myStrCpy(linecnkptr,"\t\n");
+        printf("themystrlen %d\n",myStrLen(numinserts)+1);
+        linecnkptr += (myStrLen(numinserts)+1);
+        printf("the str after move:%s\n",linecnkptr);
+        char * numdeletions = myStrCpy(linecnkptr,"\t\n");
+        linecnkptr += (myStrLen(numdeletions)+1);
+        char * strfilename = myStrCpy(linecnkptr,"\t\n");//account for newline at end
+
+
+        printf("the insertions: %d\n",atoi(numinserts));
+
+        printf("the deletions: %s\n",numdeletions);
+        printf("the filestr: %s\n",strfilename);
+        printf("\n");
+
+        //insert node depending on odering
+
+        //create a token for findinlist
+
+        ModFile * tokenmodfilecompare =  PutModFile(atoi(numinserts),atoi(numdeletions),strfilename,NULL);
+
+        node_t * findinlreslt = FindInList(list,tokenmodfilecompare);
+
+        
+
+        if(ordering == 'a')
+        {
+            //option a alphabetical
+            if(findinlreslt == NULL)
+            {
+                //insert in alphabet order
+                printf("inserting in order--------------------------\n");
+                InsertInOrder(list, (void*)tokenmodfilecompare);
+            }
+            else
+            {
+                //it exists use putmodfile to update it
+                printf("updating in order--------------------\n");
+                PutModFile(atoi(numinserts),atoi(numdeletions),strfilename,findinlreslt->data);
+
+                //free tokenmodfilecompare only when we know it exists in LL and it is used for comparison only
+                ModFile_Deleter(tokenmodfilecompare);
+            }
+            
+        }
+        else if(ordering = 'd')
+        {
+            //ording is d decreasing total deletesandinserts
+            if(findinlreslt == NULL)
+            {
+                //insert in alphabet order
+                printf("inserting in revorder--------------------------\n");
+                InsertInReverseOrder(list, (void*)tokenmodfilecompare);
+            }
+            else
+            {
+                //it exists use putmodfile to update it
+                printf("updating in revorder--------------------\n");
+                PutModFile(atoi(numinserts),atoi(numdeletions),strfilename,findinlreslt->data);
+
+                //free tokenmodfilecompare only when we know it exists in LL and it is used for comparison only
+                ModFile_Deleter(tokenmodfilecompare);
+            }
+        }
+
+
+        
+        //free the pointers after
+        free(numinserts);
+        free(numdeletions);
+        free(strfilename);
+    }
+
+    //free linechunk at end
+    free(linechunk);
 
 }
 
