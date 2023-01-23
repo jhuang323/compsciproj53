@@ -333,7 +333,7 @@ void recurdestroylnchain(node_t * anode,list_t * alist)
     if(anode->data != NULL)
     {
         alist->deleter(anode->data);
-        //free current modfile it self
+        //free current anodeindata whatever struct itself
         free(anode->data);
     }
     //free current node
