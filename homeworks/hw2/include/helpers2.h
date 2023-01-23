@@ -1,6 +1,6 @@
 #ifndef HELPERS_2_H
 #define HELPERS_2_H
-#include "linkedlist.h" //ok to include??
+// #include "linkedlist.h" //ok to include??
 
 // Declare all helper functions for hw2 in this file
 
@@ -14,9 +14,9 @@ int myStrLen(char* str);
 int myStrCmp(const char* str1,const char* str2);
 
 //destroy listnode chain
-void recurdestroylnchain(node_t * anode,list_t * alist);
+// void recurdestroylnchain(node_t * anode,list_t * alist);
 
-//test insertinreverse order for LL
-void InsertInReverseOrder(list_t* list, void* val_ref);
+// //test insertinreverse order for LL
+// void InsertInReverseOrder(list_t* list, void* val_ref);
 
 #endif

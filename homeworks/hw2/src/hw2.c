@@ -220,11 +220,17 @@ void ModFile_Deleter(void* data) {
     // free((ModFile*))
     printf("testmodfile deleter\n");
 
+    //check of data is NUll
+    if(data == NULL)
+    {
+        return;
+    }
+
     ModFile * mdfileptr = data;
     //free string in Modfile
     free(mdfileptr->filename);
-    //then free the modfile struct ???
-    free(mdfileptr);
+    //then free the modfile struct ??? no
+    // free(mdfileptr);
 
 }
 
@@ -269,6 +275,49 @@ node_t* FindInList(list_t* list, void* token)  {
     return mvnodeptr;
 }
 
+//-----------test my helper functions
+//insertinrevorder function test
+void InsertInReverseOrder(list_t* list, void* val_ref) {
+    if(list == NULL || val_ref == NULL)
+        return;
+    if (list->length == 0) {
+        InsertAtHead(list, val_ref);
+        return;
+    }
+
+    node_t** head = &(list->head);
+    node_t* new_node;
+    new_node = malloc(sizeof(node_t));
+    new_node->data = val_ref;
+    new_node->next = NULL;
+
+    if (list->comparator(new_node->data, (*head)->data) > 0) {
+        new_node->next = *head;
+        *head = new_node;
+    } else if ((*head)->next == NULL) {
+        (*head)->next = new_node;
+    } else {
+        node_t* prev = *head;
+        node_t* current = prev->next;
+        while (current != NULL) {
+            if (list->comparator(new_node->data, current->data) < 0) {
+                if (current->next != NULL) {
+                    prev = current;
+                    current = current->next;
+                } else {
+                    current->next = new_node;
+                    break;
+                }
+            } else {
+                prev->next = new_node;
+                new_node->next = current;
+                break;
+            }
+        }
+    }
+    list->length++;
+}
+
 //my function
 void recurdestroylnchain(node_t * anode,list_t * alist)
 {
@@ -284,10 +333,13 @@ void recurdestroylnchain(node_t * anode,list_t * alist)
     if(anode->data != NULL)
     {
         alist->deleter(anode->data);
+        //free current modfile it self
+        free(anode->data);
     }
     //free current node
     free(anode);
 }
+//end test ---------------------------
 
 void DestroyList(list_t** list) {
     //given linked list
@@ -480,6 +532,13 @@ void ProcessModFile(FILE* fp, list_t* list, char ordering) {
 
 // Part 3 Functions to implement
 void AuthorPrinter(void* data, void *fp, int flag) {
+    //check if data is null
+    //NOTeE !!! CHECK FOR NULL in Author's modfileList???
+    if(data == NULL)
+    {
+        return;
+    }
+
     //check flag
     if(flag == 0)
     {
@@ -513,15 +572,101 @@ void AuthorPrinter(void* data, void *fp, int flag) {
 }
 
 int AuthorEmailComparator(const void* lhs, const void* rhs)  {
-    return -999;
+    // return -999;
+
+    //check if either arg is NULL
+    if(lhs == NULL || rhs == NULL)
+    {
+        //either arg is NULL
+        return 0;
+    }
+
+    Author * lhsauthorst = (Author *)lhs;
+    Author * rhsauthorst = (Author *)rhs;
+    //call mystrcmp
+    int mystrcmpres = myStrCmp(lhsauthorst->email,rhsauthorst->email);
+    printf("The comparison value: %d\n",mystrcmpres);
+
+    //determine return val
+    if(mystrcmpres < 0)
+    {
+        //return -1
+        return -1;
+    }
+    else if(mystrcmpres > 0)
+    {
+        //return 1
+        return 1;
+    }
+    else
+    {
+        //they are equal
+        return 0;
+    }
+
+    
 }
 
 int AuthorCommitComparator(const void* lhs, const void* rhs) {
-    return -999;
+    //check if either arg is NULL
+    if(lhs == NULL || rhs == NULL)
+    {
+        //either arg is NULL
+        return 0;
+    }
+
+    Author * lhsauthorst = (Author *)lhs;
+    Author * rhsauthorst = (Author *)rhs;
+
+    //compare in decending order
+    if(lhsauthorst->commitCount > rhsauthorst->commitCount)
+    {
+        //return -1
+        return -1;
+    }
+    else if(lhsauthorst->commitCount < rhsauthorst->commitCount)
+    {
+        //return 1
+        return 1;
+    }
+    else
+    {
+        //equal 
+        return 0;
+    }
 }
 
 void AuthorDeleter(void* data)  {
+    //if data is null then return
+    printf("IN authro deletor\n");
+    if(data == NULL)
+    {
+        return;
+    }
+    printf("Begin author deletor\n");
 
+    //free dynamically allocated fullname and email
+    Author * authorstrptr = (Author *)data;
+    //check null
+    if(authorstrptr->fullname != NULL)
+    {
+        free(authorstrptr->fullname);
+    }
+    if(authorstrptr->email != NULL)
+    {
+        free(authorstrptr->email);
+    }
+
+    //free modfilelist
+    if(authorstrptr->modFileList != NULL)
+    {
+        //free by calling destroy list
+        DestroyList(&(authorstrptr->modFileList));
+    }
+
+    // finally free the struct it self?? no??
+    // free(authorstrptr);
+    
 }
 
 Author* CreateAuthor(char* line, long int *timestamp)  {
