@@ -15,7 +15,7 @@ PRG_SUFFIX:=.out
 # \trecipe (how to make the target)
 # ...
 # The tab character is important (no spaces), and the recipe is a series of shell command(s)
-all: clean setup p0test_main p1test_main p2test_main p3test_main linkedlisttest_main 53gitlog 
+all: clean setup p0test_main p1test_main p2test_main p3test_main pp3test linkedlisttest_main 53gitlog 
 	
 53gitlog: src/hw2.c  src/helpers2.c src/linkedlist.c src/53gitlog.c
 	$(CC) -I $(INCLUDE_DIR) $(CFLAGS) $(SRC_DIR)/53gitlog.c  $(SRC_DIR)/linkedlist.c $(SRC_DIR)/helpers2.c $(SRC_DIR)/hw2.c -o $(BIN_DIR)/53gitlog
@@ -32,6 +32,9 @@ p2test_main: setup src/hw2.c src/helpers2.c src/linkedlist.c tests/p2test_main.c
 
 p3test_main: setup src/hw2.c src/helpers2.c src/linkedlist.c tests/p3test_main.c
 	$(CC) -I $(INCLUDE_DIR) $(CFLAGS) $(SRC_DIR)/linkedlist.c $(SRC_DIR)/helpers2.c $(SRC_DIR)/hw2.c tests/p3test_main.c -o $(BIN_DIR)/p3test_main
+
+pp3test: setup src/hw2.c src/helpers2.c src/linkedlist.c tests/pp3test.c
+	$(CC) -I $(INCLUDE_DIR) $(CFLAGS) $(SRC_DIR)/linkedlist.c $(SRC_DIR)/helpers2.c $(SRC_DIR)/hw2.c tests/pp3test.c -o $(BIN_DIR)/pp3test
 
 linkedlisttest_main: setup src/hw2.c src/helpers2.c src/linkedlist.c tests/linkedlisttest_main.c
 	$(CC) -I $(INCLUDE_DIR) $(CFLAGS) $(SRC_DIR)/linkedlist.c $(SRC_DIR)/helpers2.c $(SRC_DIR)/hw2.c tests/linkedlisttest_main.c -o $(BIN_DIR)/linkedlisttest_main

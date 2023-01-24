@@ -21,7 +21,7 @@
 #include "linkedlist.h"
 #include "hw2.h"
 
-list_t* CreateList(int (*compare)(const void*,const void*), void (*print)(void*, void*,int),
+list_t* CreateList(int (*compare)(const void*, const void*), void (*print)(void*, void*,int),
                    void (*delete)(void*)) {
     list_t* list = malloc(sizeof(list_t));
     list->comparator = compare;

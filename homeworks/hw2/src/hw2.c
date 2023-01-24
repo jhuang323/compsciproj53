@@ -716,6 +716,9 @@ Author* CreateAuthor(char* line, long int *timestamp)  {
     //free timestampstr
     free(timestampstr);
 
+    //free commithashstr not used
+    free(commithashstr);
+
     //create author
     Author * retauthorptr = (Author *)malloc(sizeof(Author));
 
@@ -739,5 +742,83 @@ Author* CreateAuthor(char* line, long int *timestamp)  {
 
 // Part 4 Functions to implement
 void PrintNLinkedList(list_t* list, FILE* fp, int NUM) {
+    //check nullptr
+    if(list == NULL || fp == NULL)
+    {
+        return;
+    }
+    //check num < 0
+    if(NUM < 0)
+    {
+        return;
+    }
 
+    node_t * mvnodeptr = list->head;
+    
+
+    for(int i = 0;i < NUM;i++)
+    {
+        if(mvnodeptr == NULL)
+        {
+            return;
+        }
+        //after null check print
+        list->printer((void *)mvnodeptr,(void *)fp,0);
+
+        //update mvnodeptr
+        mvnodeptr = mvnodeptr->next;
+        
+    }
+
+}
+
+//my sort function
+void mySortFunctmodauth(list_t* givenlist,int (*comparefunct)(const void*, const void*),char modauthoption)
+{
+    //sorting after wards final list is sorted in 
+    //create new list
+
+    list_t * templistholdsort = NULL;
+
+    if(modauthoption == 'm')
+    {
+        templistholdsort = CreateList(comparefunct,&ModFile_Printer,&ModFile_Deleter);
+    }
+    else
+    {
+        templistholdsort = CreateList(comparefunct,&AuthorPrinter,&AuthorDeleter);
+    }
+
+
+    //sort the list with the given comparator by inserting
+    node_t * mvnodeptr = givenlist->head;
+
+    while(mvnodeptr != NULL)
+    {
+        printf("Sorting Node!\n");
+
+        
+
+        InsertInOrder(templistholdsort,(void *)mvnodeptr->data);
+        //set the data ptr to null
+        mvnodeptr->data = NULL;
+
+        //update mvnodeptr
+        mvnodeptr = mvnodeptr->next;
+    }
+
+    //print the sorted list
+    printf("the sorrted list\n");
+    PrintLinkedList(templistholdsort,stdout);
+
+    //swap the heads
+    node_t * tempheadstor = givenlist->head;
+    //move sortedhead to givenlist
+    givenlist->head = templistholdsort->head;
+    //set templist head to stored
+    templistholdsort->head = tempheadstor;
+
+    //destroy templistholdsort
+    DestroyList(&templistholdsort);
+    
 }
