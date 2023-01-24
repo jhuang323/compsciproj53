@@ -15,14 +15,14 @@ typedef struct node {
 typedef struct list {
     node_t* head;        // pointer to the node_t at the head of the list
     int length;          // number of items in the list
-    int (*comparator)(void*, void*);     // function pointer for in order insertion
+    int (*comparator)(const void*,const void*);     // function pointer for in order insertion
     void (*printer)(void*, void*, int);  // function pointer for printing the data stored
     void (*deleter)(void*);              // function pointer for deleting any dynamically 
                                          // allocated items within the data stored
 } list_t;
 
 // Functions already implemented
-list_t* CreateList(int (*compare)(void*, void*), void (*print)(void*,void*,int),
+list_t* CreateList(int (*compare)(const void*,const void*), void (*print)(void*,void*,int),
                    void (*delete)(void*));
 void InsertAtHead(list_t* list, void* val_ref);
 void InsertAtTail(list_t* list, void* val_ref);

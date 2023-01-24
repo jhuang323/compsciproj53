@@ -670,7 +670,70 @@ void AuthorDeleter(void* data)  {
 }
 
 Author* CreateAuthor(char* line, long int *timestamp)  {
-    return NULL;
+    //check if either is NUll
+    if(line == NULL || timestamp == NULL)
+    {
+        return NULL;
+    }
+
+    //get values
+    char * mvlineptr = line;
+    //get commit hash
+    char * commithashstr = myStrCpy(mvlineptr,",\n");
+    
+    mvlineptr += myStrLen(commithashstr) + 1;
+
+    //get timestamp
+    char * timestampstr = myStrCpy(mvlineptr,",\n");
+    mvlineptr += myStrLen(timestampstr) + 1;
+
+    //get fullname
+    char * fullnamestr = myStrCpy(mvlineptr,",\n");
+    mvlineptr += myStrLen(fullnamestr) + 1;
+
+    //get email
+    char * emailstr = myStrCpy(mvlineptr,",\n");
+    mvlineptr += myStrLen(emailstr) + 1;
+
+    printf("commithash: %s timestamp: %s fullname: %s email: %s\n",commithashstr,timestampstr,fullnamestr,emailstr);
+
+    //check if commithash, email, fullname , timestamp is empty
+    if(*commithashstr == '\0' || *timestampstr == '\0' || *fullnamestr == '\0' || *emailstr == '\0')
+    {
+        printf("commit hash empty;\n");
+        return NULL;
+    }
+
+    //check timestamp is 0 or positice
+    if(atoi(timestampstr) < 0)
+    {
+        printf("Time stamp error\n");
+        return NULL;
+    }
+
+    //store timestamp
+    *timestamp = atoi(timestampstr);
+    //free timestampstr
+    free(timestampstr);
+
+    //create author
+    Author * retauthorptr = (Author *)malloc(sizeof(Author));
+
+    //set fullname
+    retauthorptr->fullname = fullnamestr;
+    //set email
+    retauthorptr->email = emailstr;
+    //set commitcount
+    retauthorptr->commitCount = 1;
+    
+    //createmodfile list to store
+    //default abc comparator
+    retauthorptr->modFileList = CreateList(&ModFileABC_Comparator,&ModFile_Printer,&ModFile_Deleter);
+
+    //return the ptr
+    return retauthorptr;
+    
+
 }
 
 

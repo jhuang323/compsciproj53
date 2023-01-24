@@ -76,7 +76,7 @@ int main() {
     strcpy(temp->fullname,"Michael Schindler");
     //Leaving ModFileList Empty, but you should delete all memory associated with list too
 
-    AuthorDeleter(mikes);   
+    AuthorDeleter(mikes);
     if(mikes == NULL)
        printf("How did you do that?!?!");
     else
@@ -85,13 +85,13 @@ int main() {
 
     // What happens if you try to delete name1 or name2? Why? Does it impact anything?
     // AuthorDeleter(&jwongma);
-    // AuthorDeleter(mikes);
+   //  AuthorDeleter(mikes);
     
-    // printf("\n\n******createAuthor Tests******\n");
-    // long int theTimestamp = -1;
-    // Author* author1 = CreateAuthor("c09765e,1636949442,Jennifer Wong-Ma,jwongma@uci.edu,Fall 2021 Bombsweeper Edition\n", &theTimestamp);
-    // printf("\n***c09765e,1636949442,Jennifer Wong-Ma,jwongma@uci.edu,Fall 2021 Bombsweeper Editiony***\n");
-    // AuthorPrinter(author1, stdout, 0);
+    printf("\n\n******createAuthor Tests******\n");
+    long int theTimestamp = -1;
+    Author* author1 = CreateAuthor("c09765e,1636949442,Jennifer Wong-Ma,jwongma@uci.edu,Fall 2021 Bombsweeper Edition\n", &theTimestamp);
+    printf("\n***c09765e,1636949442,Jennifer Wong-Ma,jwongma@uci.edu,Fall 2021 Bombsweeper Editiony***\n");
+    AuthorPrinter(author1, stdout, 0);
 
     return 0;
 }
