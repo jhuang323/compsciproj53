@@ -87,64 +87,213 @@ int myStrCmp(const char* str1,const char* str2)
 
 }
 
-// //insertinrevorder function test
-// void InsertInReverseOrder(list_t* list, void* val_ref) {
-//     if(list == NULL || val_ref == NULL)
-//         return;
-//     if (list->length == 0) {
-//         InsertAtHead(list, val_ref);
-//         return;
-//     }
+//my isdigit
+int myIsDigit(int achar)
+{
+    //check char if it is digit
+    if(achar < 48 || achar > 57)
+    {
+        //return zero due to it being non int
+        return 0;
+    }
 
-//     node_t** head = &(list->head);
-//     node_t* new_node;
-//     new_node = malloc(sizeof(node_t));
-//     new_node->data = val_ref;
-//     new_node->next = NULL;
+    // is a digit
+    return 1;
+    
+}
 
-//     if (list->comparator(new_node->data, (*head)->data) > 0) {
-//         new_node->next = *head;
-//         *head = new_node;
-//     } else if ((*head)->next == NULL) {
-//         (*head)->next = new_node;
-//     } else {
-//         node_t* prev = *head;
-//         node_t* current = prev->next;
-//         while (current != NULL) {
-//             if (list->comparator(new_node->data, current->data) < 0) {
-//                 if (current->next != NULL) {
-//                     prev = current;
-//                     current = current->next;
-//                 } else {
-//                     current->next = new_node;
-//                     break;
-//                 }
-//             } else {
-//                 prev->next = new_node;
-//                 new_node->next = current;
-//                 break;
-//             }
-//         }
-//     }
-//     list->length++;
-// }
+//my check if entire string is digit
+int myCheckStrIsDigit(const char * str)
+{
+    //use while loop and myisdigit
+    const char * mvcharptr = str;
 
-// //my function
-// void recurdestroylnchain(node_t * anode,list_t * alist)
-// {
-//     printf("recursive destroy\n");
+    while(*mvcharptr != '\0')
+    {
+        // call isdigit for all chars
+        if(myIsDigit(*mvcharptr) == 0)
+        {
+            //isdigit is not number return 0
+            return 0;
+        }
 
-//     if(anode->next != NULL)
-//     {
-//         recurdestroylnchain(anode->next,alist);
+        //update mvcharptr
+        mvcharptr++;
+
+    }
+
+    //after checking through the str
+    return 1;
+    
+
+}
+
+//my recurdestroy chain
+void recurdestroylnchain(node_t * anode,list_t * alist)
+{
+    printf("recursive destroy\n");
+
+    if(anode->next != NULL)
+    {
+        recurdestroylnchain(anode->next,alist);
         
-//     }
-//     printf("freeing\n");
-//     //call deleter
-//     if(anode->data != NULL)
-//     {
-//         alist->deleter(anode->data);
-//     }
-//     //free current node
-//     free(anode);
-// }
+    }
+    printf("freeing\n");
+    //call deleter
+    if(anode->data != NULL)
+    {
+        alist->deleter(anode->data);
+        //free current anodeindata whatever struct itself
+        free(anode->data);
+    }
+    //free current node
+    free(anode);
+}
+
+//insertinrevorder function test
+void InsertInReverseOrder(list_t* list, void* val_ref) {
+    if(list == NULL || val_ref == NULL)
+        return;
+    if (list->length == 0) {
+        InsertAtHead(list, val_ref);
+        return;
+    }
+
+    node_t** head = &(list->head);
+    node_t* new_node;
+    new_node = malloc(sizeof(node_t));
+    new_node->data = val_ref;
+    new_node->next = NULL;
+
+    if (list->comparator(new_node->data, (*head)->data) > 0) {
+        new_node->next = *head;
+        *head = new_node;
+    } else if ((*head)->next == NULL) {
+        (*head)->next = new_node;
+    } else {
+        node_t* prev = *head;
+        node_t* current = prev->next;
+        while (current != NULL) {
+            if (list->comparator(new_node->data, current->data) < 0) {
+                if (current->next != NULL) {
+                    prev = current;
+                    current = current->next;
+                } else {
+                    current->next = new_node;
+                    break;
+                }
+            } else {
+                prev->next = new_node;
+                new_node->next = current;
+                break;
+            }
+        }
+    }
+    list->length++;
+}
+
+//mycheckdate
+int myCheckDate(char * givstr,int * monnum,int * daynum, int * yearnum)
+{
+    //use while loop to see if 3 / exists
+
+    char * mvcharptr = givstr;
+    int slashnum = 0;
+    // printf("%c\n",*mvcharptr);
+
+    while(*mvcharptr != '\0')
+    {
+        // printf("%c\n",*mvcharptr);
+        //check for slash /
+        if(*mvcharptr == '/')
+        {
+            slashnum++;
+        }
+
+        //update pointer
+        mvcharptr++;
+    }
+
+    printf("slashnum: %d\n",slashnum);
+
+    if(slashnum != 2)
+    {
+        //not correct slash
+        return 0;
+    }
+
+    char * mvstrptr2 = givstr;
+    //get day need to free
+
+    char * thedaystr = myStrCpy(mvstrptr2,"/");
+
+    //make sure len == 2
+    if(myStrLen(thedaystr) != 2)
+    {
+        //free str
+        free(thedaystr);
+        //error
+        return 0;
+    }
+
+    mvstrptr2 += myStrLen(thedaystr) + 1;
+
+    //get month needed
+    char * themonthstr =  myStrCpy(mvstrptr2,"/");
+    //make sure len == 2
+    if(myStrLen(themonthstr) != 2)
+    {
+        //free str
+        free(thedaystr);
+        free(themonthstr);
+        //error
+        return 0;
+    }
+    mvstrptr2 += myStrLen(themonthstr) + 1;
+
+    //get year needed
+    char * theyearstr =  myStrCpy(mvstrptr2,"/");
+    //make sure len == 4
+    if(myStrLen(themonthstr) != 4)
+    {
+        //free str
+        free(thedaystr);
+        free(themonthstr);
+        free(theyearstr);
+        //error
+        return 0;
+    }
+    mvstrptr2 += myStrLen(theyearstr) + 1;
+
+    printf("the day str: %s the month str: %s the year str: %s \n",thedaystr,themonthstr,theyearstr);
+
+    if(myCheckStrIsDigit(thedaystr) == 0 || myCheckStrIsDigit(themonthstr) == 0 || myCheckStrIsDigit(theyearstr) == 0)
+    {
+        //free the strings
+        free(thedaystr);
+        free(themonthstr);
+        free(theyearstr);
+        //return on is not all digits
+        return 0;
+
+    }
+
+    //set the digits in arg
+    *monnum = atoi(themonthstr);
+    *daynum = atoi(thedaystr);
+    *yearnum = atoi(theyearstr);
+
+
+    //free the strings
+    free(thedaystr);
+    free(themonthstr);
+    free(theyearstr);
+
+
+    //return 1 meaning given date is correct
+    return 1;
+
+    
+}
+
+

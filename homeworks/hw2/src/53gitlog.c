@@ -12,6 +12,8 @@ int main(int argc, char* argv[]) {
     char* OUTFILE = NULL;
     char* INFILE = NULL;
 
+    int smalladcounter = 0; //counts the number of times a or d appears
+
     // Use basic getopt to parse flags and respective arguments
     int option;
     while ((option = getopt(argc, argv, "HD:A:O:I:n:ad" )) >= 0) {
@@ -32,6 +34,7 @@ int main(int argc, char* argv[]) {
                 break;
             case 'a':
             case 'd':
+                smalladcounter += 1;
 				ORDER_arg = option;
                 break;
             case 'O':
@@ -55,6 +58,45 @@ int main(int argc, char* argv[]) {
     
     // INSERT YOUR IMPLEMENTATION HERE
     // getopts only stored the arguments and performed basic checks. More error checking is still needed!!!!
+
+    //error checking part
+
+    //check if -a and -d appears at once
+    if(smalladcounter > 1)
+    {
+        //arg error
+        fprintf(stderr,USAGE_MSG);
+        return 1;
+    }
+    //check if -D and -A appears both times
+    if(D_flag == 1 && A_flag == 1)
+    {
+        //arg error
+        fprintf(stderr,USAGE_MSG);
+        return 1;
+    }
+
+    //check DATE is correct
+    int mnum = 0;
+    int dnum = 0;
+    int ynum = 0;
+
+    
+
+    if(DATE_arg != NULL)
+    {
+        if(myCheckDate(DATE_arg,&mnum,&dnum,&ynum) == 0)
+        {
+            //error arg DATE
+            printf("DATTE ERROR!\n");
+            fprintf(stderr,USAGE_MSG);
+            return 1;
+        }
+    
+    }
+
+    printf("ALLOWED !%d\n",NUM_arg);
+
 
 
     return 0;
