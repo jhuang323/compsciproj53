@@ -63,6 +63,13 @@ int main()
     printf("the nums: %d %d %d\n",mnum,dnum,ynum);
 
 
+    //test comparator
+    Author * a11 = CreateAuthor("c09765e,1636949442,Jennifer Wong-Ma,jwongma@uci.edu,dark_mode,Fall 2021 Bombsweeper Edition\n",&a1num);
+    Author * a22 = CreateAuthor("c09765e,1636949442,Jennifer Wong-Ma,jwongma@uci.edu,dark_mode,Fall 2021 Bombsweeper Edition\n",&a1num);
+
+    
+
+
     
 
 

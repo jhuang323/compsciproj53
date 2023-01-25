@@ -543,14 +543,14 @@ void AuthorPrinter(void* data, void *fp, int flag) {
     if(flag == 0)
     {
         //flag is zero
-        fprintf((FILE*)fp,"%s %s,%d,%d\n",((Author*)data)->fullname,((Author*)data)->email,((Author*)data)->commitCount,((Author*)data)->modFileList->length);
+        fprintf((FILE*)fp,"%s <%s>,%d,%d\n",((Author*)data)->fullname,((Author*)data)->email,((Author*)data)->commitCount,((Author*)data)->modFileList->length);
 
     }
     else
     {
         //flag is non zero
         //extended print
-        fprintf((FILE*)fp,"%s %s,%d\n",((Author*)data)->fullname,((Author*)data)->email,((Author*)data)->commitCount);
+        fprintf((FILE*)fp,"%s <%s>,%d\n",((Author*)data)->fullname,((Author*)data)->email,((Author*)data)->commitCount);
         //call the printfunction of Modlist
 
         //need while loop to go through the nodes
@@ -560,6 +560,8 @@ void AuthorPrinter(void* data, void *fp, int flag) {
 
         while(mvptrinauthormdfilelist != NULL)
         {
+            //print tab before
+            fprintf((FILE*)fp,"\t");
             //print a node
             ((Author*)data)->modFileList->printer((void *)mvptrinauthormdfilelist->data,fp,1);
             //update ptr
@@ -767,7 +769,7 @@ void PrintNLinkedList(list_t* list, FILE* fp, int NUM) {
             return;
         }
         //after null check print
-        list->printer((void *)mvnodeptr->data,(void *)fp,0);
+        list->printer((void *)mvnodeptr->data,(void *)fp,1);
 
         //update mvnodeptr
         mvnodeptr = mvnodeptr->next;
