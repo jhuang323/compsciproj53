@@ -5,7 +5,7 @@
 int main()
 {   
     //test pretty print
-    list_t* testlist = CreateList(&ModFileTotal_Comparator,&ModFile_Printer,&ModFile_Deleter);
+    list_t* testlist = CreateList(&ModFileABC_Comparator,&ModFile_Printer,&ModFile_Deleter);
 
 
 
@@ -14,13 +14,13 @@ int main()
 
     // //insert 1 intolist
     // printf("list with 1 in it:\n");
-    ModFile* f1 = PutModFile(3,3,"MarsSplashScreen.java", NULL);
-    PutModFile(222,0,"MarsSplashScreen.java", f1);
+    // ModFile* f1 = PutModFile(3,3,"MarsSplashScreen.java", NULL);
+    // PutModFile(222,0,"MarsSplashScreen.java", f1);
     // ModFile* f2 = PutModFile(411,0,"tools/ICS51_Minesweeper.java", NULL);
     // ModFile* f3 = PutModFile(1,7,"mars/venus/HelpAboutAction.java", NULL);
     // ModFile* f4 = PutModFile(1,8,"tools/ICS51_Minesweepedr.java", NULL);
     // InsertInReverseOrder(testlist, (void*) f3);
-    InsertInOrder(testlist, (void*) f1);
+    // InsertInOrder(testlist, (void*) f1);
     // InsertInReverseOrder(testlist, (void*) f2);
     // InsertInReverseOrder(testlist, (void*) f4);
     // PrintLinkedList(testlist,stdout);
@@ -30,15 +30,16 @@ int main()
 
     //testprocessmodfile
     
-    // FILE* fptr = fopen("rsrc/mytestfile.txt","r");
+    FILE* fptr = fopen("rsrc/mytestfile.txt","r");
 
     // if(fptr == NULL)
     // {
     //     printf("File error\n");
     // }
 
-    // ProcessModFile(fptr,testlist,'f');
-    // PrintLinkedList(testlist,stdout);
+    ProcessModFile(fptr,testlist,'d');
+    printf("the list:\n");
+    PrintLinkedList(testlist,stdout);
 
     
 
@@ -54,7 +55,7 @@ int main()
 
 
     //close file
-    // fclose(fptr);
+    fclose(fptr);
 
 
 

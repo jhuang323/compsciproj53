@@ -156,11 +156,11 @@ ModFile* PutModFile(int ins, int dels, char* filename, ModFile* mf) {
 int ModFileABC_Comparator(const void* file1, const void* file2) {
     // return -999;
 
-    printf("test print filename1: %s\n",((ModFile *)file1)->filename);
-    printf("test print filename2: %s\n",((ModFile *)file2)->filename);
+    // printf("test print filename1: %s\n",((ModFile *)file1)->filename);
+    // printf("test print filename2: %s\n",((ModFile *)file2)->filename);
 
     int comparereslt = myStrCmp(((ModFile *)file1)->filename,((ModFile *)file2)->filename);
-    printf("the comparison: %d\n",comparereslt);
+    // printf("the comparison: %d\n",comparereslt);
 
     if(comparereslt < 0)
     {
@@ -185,8 +185,8 @@ int ModFileTotal_Comparator(const void* file1, const void* file2) {
     unsigned int file1totalinsdel = ((ModFile *)file1)->inserts + ((ModFile *)file1)->deletes;
     unsigned int file2totalinsdel = ((ModFile *)file2)->inserts + ((ModFile *)file2)->deletes;
 
-    printf("total file1: %d\n",file1totalinsdel);
-    printf("total file2: %d\n",file2totalinsdel);
+    // printf("total file1: %d\n",file1totalinsdel);
+    // printf("total file2: %d\n",file2totalinsdel);
 
     //if file1 ins+del < file2 ins+del
     if(file1totalinsdel < file2totalinsdel)
@@ -236,7 +236,7 @@ void ModFile_Deleter(void* data) {
 
 node_t* FindInList(list_t* list, void* token)  {
     // return NULL;
-    printf("In findin list function\n");
+    // printf("In findin list function\n");
 
     //check if token is NULL
     if(token == NULL)
@@ -252,13 +252,13 @@ node_t* FindInList(list_t* list, void* token)  {
 
     while(mvnodeptr != NULL)
     {
-        printf("in findln --pointer: \n");
+        // printf("in findln --pointer: \n");
         ModFile_Printer(mvnodeptr->data,stdout,1);
 
         //call comparator function
         int comparterfunctretval = list->comparator(mvnodeptr->data,token);
 
-        printf("**comparatorfunct retval: %d\n",comparterfunctretval);
+        // printf("**comparatorfunct retval: %d\n",comparterfunctretval);
 
         //return if comparevalfunctreturn is 0
         if(comparterfunctretval == 0)
@@ -362,6 +362,13 @@ void DestroyList(list_t** list) {
 }
 
 void ProcessModFile(FILE* fp, list_t* list, char ordering) {
+
+    //check if list is null
+    if(list  == NULL)
+    {
+        return;
+    }
+
     //reads from FILE
     printf("IN Process ModFIle: Maxline size: %d\n",MAX_LINESIZE);
 
@@ -370,158 +377,181 @@ void ProcessModFile(FILE* fp, list_t* list, char ordering) {
     printf("after init %ld\n",sizeof(char)*(MAX_LINESIZE + 1));
 
     //test creating new list with ABC comparator
-    list_t * tempABCcomplist = CreateList(&ModFileABC_Comparator,&ModFile_Printer,&ModFile_Deleter);
+        // list_t * tempABCcomplist = CreateList(&ModFileABC_Comparator,&ModFile_Printer,&ModFile_Deleter);
 
-    //migrate modfiles in list to tempABC
-    tempABCcomplist->head = list->head;
-    //set list head to nullptr
-    list->head = NULL;
-    //set tempABCcomplist length to list length
-    tempABCcomplist->length = list->length;
-    //set listlength to 0
-    list->length = 0;
+        // //migrate modfiles in list to tempABC
+        // tempABCcomplist->head = list->head;
+        // //set list head to nullptr
+        // list->head = NULL;
+        // //set tempABCcomplist length to list length
+        // tempABCcomplist->length = list->length;
+        // //set listlength to 0
+        // list->length = 0;
 
+    //Author pointer
+    // Author * curcommitauthor = NULL;
+
+    //the timestamp
+    // long int theimestamp;
 
     while(fgets(linechunk,(MAX_LINESIZE + 1),fp) != NULL)
     {
-        printf("Theline is :\n");
-        printf("%s|*\n",linechunk);
+
+        // printf("Theline is :\n");
+        // printf("%s|*\n",linechunk);
 
         if(myStrCmp(linechunk,"\n") == 0)
         {
-            printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!n DETECTED!!!!!!!!!!!!!!\n");
+            // printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!n DETECTED!!!!!!!!!!!!!!\n");
             break;
         }
 
-        printf("test splitting\n");
+        // //check for author lines
+        if(myStrChar(linechunk,'\t') != NULL)
+        {
+            // printf("test splitting\n");
 
-        //pointer that moves as we split
-        char * linecnkptr = linechunk;
+            //pointer that moves as we split
+            char * linecnkptr = linechunk;
 
-        char * numinserts = myStrCpy(linecnkptr,"\t\n");
-        printf("themystrlen %d\n",myStrLen(numinserts)+1);
-        linecnkptr += (myStrLen(numinserts)+1);
-        printf("the str after move:%s\n",linecnkptr);
-        char * numdeletions = myStrCpy(linecnkptr,"\t\n");
-        linecnkptr += (myStrLen(numdeletions)+1);
-        char * strfilename = myStrCpy(linecnkptr,"\t\n");//account for newline at end
+            char * numinserts = myStrCpy(linecnkptr,"\t\n");
+            // printf("themystrlen %d\n",myStrLen(numinserts)+1);
+            linecnkptr += (myStrLen(numinserts)+1);
+            // printf("the str after move:%s\n",linecnkptr);
+            char * numdeletions = myStrCpy(linecnkptr,"\t\n");
+            linecnkptr += (myStrLen(numdeletions)+1);
+            char * strfilename = myStrCpy(linecnkptr,"\t\n");//account for newline at end
 
 
-        printf("the insertions: %d\n",atoi(numinserts));
+            // printf("the insertions: %d\n",atoi(numinserts));
 
-        printf("the deletions: %s\n",numdeletions);
-        printf("the filestr: %s\n",strfilename);
-        printf("\n");
+            // printf("the deletions: %s\n",numdeletions);
+            // printf("the filestr: %s\n",strfilename);
+            // printf("\n");
 
-        //insert node depending on odering
+            //insert node depending on odering
 
-        //create a token for findinlist
+            //create a token for findinlist
 
-        ModFile * tokenmodfilecompare =  PutModFile(atoi(numinserts),atoi(numdeletions),strfilename,NULL);
+            ModFile * tokenmodfilecompare =  PutModFile(atoi(numinserts),atoi(numdeletions),strfilename,NULL);
 
-        node_t * findinlreslt = FindInList(tempABCcomplist,tokenmodfilecompare);
-
-        
-
-        // if(ordering == 'a')
-        // {
+            node_t * findinlreslt = NULL;
+            findinlreslt = FindInList(list,tokenmodfilecompare);
 
             
-            //option a alphabetical and d decreasing
-            if(findinlreslt == NULL)
-            {
-                if(ordering == 'a' || ordering == 'd')
+
+            // if(ordering == 'a')
+            // {
+
+                
+                //option a alphabetical and d decreasing
+                if(findinlreslt == NULL)
                 {
-                //insert in alphabet order for a and d options
-                printf("inserting in order--------------------------\n");
-                InsertInOrder(tempABCcomplist, (void*)tokenmodfilecompare);
+                    if(ordering == 'a')
+                    {
+                        //insert in alphabet order for a and d options
+                        printf("inserting in order--------------------------\n");
+                        InsertInOrder(list, (void*)tokenmodfilecompare);
+                    }
+                    else
+                    {
+                        //insert in first order
+                        printf("inserting in first order--------------------------\n");
+                        InsertAtTail(list, (void*)tokenmodfilecompare);
+                    }
                 }
                 else
                 {
-                    //insert in first order
-                    printf("inserting in first order--------------------------\n");
-                    InsertAtTail(tempABCcomplist, (void*)tokenmodfilecompare);
+                    //it exists use putmodfile to update it
+                    printf("updating in order--------------------\n");
+                    PutModFile(atoi(numinserts),atoi(numdeletions),strfilename,findinlreslt->data);
+
+                    //free tokenmodfilecompare only when we know it exists in LL and it is used for comparison only
+                    ModFile_Deleter(tokenmodfilecompare);
+                    //delete the struct Modfile itself
+                    free(tokenmodfilecompare);
+
                 }
-            }
-            else
-            {
-                //it exists use putmodfile to update it
-                printf("updating in order--------------------\n");
-                PutModFile(atoi(numinserts),atoi(numdeletions),strfilename,findinlreslt->data);
 
-                //free tokenmodfilecompare only when we know it exists in LL and it is used for comparison only
-                ModFile_Deleter(tokenmodfilecompare);
-            }
-            
-            
-            
-        // }
-        // else if(ordering = 'd')
-        // {
-        //     //ording is d decreasing total deletesandinserts
-        //     if(findinlreslt == NULL)
-        //     {
-        //         //insert in alphabet order
-        //         printf("inserting in revorder--------------------------\n");
-        //         InsertInReverseOrder(list, (void*)tokenmodfilecompare);
-        //     }
-        //     else
-        //     {
-        //         //it exists use putmodfile to update it
-        //         printf("updating in revorder--------------------\n");
-        //         PutModFile(atoi(numinserts),atoi(numdeletions),strfilename,findinlreslt->data);
+                //debug print
+                printf("\n\n\n DEBUG \n");
+                PrintLinkedList(list,stdout);
+                
+                
+                
+            // }
+            // else if(ordering = 'd')
+            // {
+            //     //ording is d decreasing total deletesandinserts
+            //     if(findinlreslt == NULL)
+            //     {
+            //         //insert in alphabet order
+            //         printf("inserting in revorder--------------------------\n");
+            //         InsertInReverseOrder(list, (void*)tokenmodfilecompare);
+            //     }
+            //     else
+            //     {
+            //         //it exists use putmodfile to update it
+            //         printf("updating in revorder--------------------\n");
+            //         PutModFile(atoi(numinserts),atoi(numdeletions),strfilename,findinlreslt->data);
 
-        //         //free tokenmodfilecompare only when we know it exists in LL and it is used for comparison only
-        //         ModFile_Deleter(tokenmodfilecompare);
-        //     }
-        // }
+            //         //free tokenmodfilecompare only when we know it exists in LL and it is used for comparison only
+            //         ModFile_Deleter(tokenmodfilecompare);
+            //     }
+            // }
 
+
+            
+            //free the pointers after
+            free(numinserts);
+            free(numdeletions);
+            free(strfilename);
+
+        }
+        
+        
 
         
-        //free the pointers after
-        free(numinserts);
-        free(numdeletions);
-        free(strfilename);
     }
 
 
-    //after things in the list
-    printf("The AABCcomplist\n");
-    PrintLinkedList(tempABCcomplist,stdout);
+    // //after things in the list
+    // printf("The AABCcomplist\n");
+    // PrintLinkedList(tempABCcomplist,stdout);
 
-    //try to migrate the modfiles to list
-    node_t * mvnodetptrTempABCList = tempABCcomplist->head;
+    // //try to migrate the modfiles to list
+    // node_t * mvnodetptrTempABCList = tempABCcomplist->head;
 
-    while(mvnodetptrTempABCList != NULL)
-    {
-        if(ordering == 'a')
-        {
-            //insert in order
-            InsertInOrder(list,(void *)mvnodetptrTempABCList->data);
-        }
-        else if(ordering == 'd')
-        {
-            InsertInReverseOrder(list,(void *)mvnodetptrTempABCList->data);
-        }
-        else if (ordering == 'f')
-        {
-            //insert at tail
-            InsertAtTail(list,(void *)mvnodetptrTempABCList->data);
-        }
+    // while(mvnodetptrTempABCList != NULL)
+    // {
+    //     if(ordering == 'a')
+    //     {
+    //         //insert in order
+    //         InsertInOrder(list,(void *)mvnodetptrTempABCList->data);
+    //     }
+    //     else if(ordering == 'd')
+    //     {
+    //         InsertInReverseOrder(list,(void *)mvnodetptrTempABCList->data);
+    //     }
+    //     else if (ordering == 'f')
+    //     {
+    //         //insert at tail
+    //         InsertAtTail(list,(void *)mvnodetptrTempABCList->data);
+    //     }
         
 
 
-        //set the data ptr in mvnodeptrtemplist to null
-        mvnodetptrTempABCList->data = NULL;
+    //     //set the data ptr in mvnodeptrtemplist to null
+    //     mvnodetptrTempABCList->data = NULL;
 
-        //update mvnodeptrtemplist
-        mvnodetptrTempABCList = mvnodetptrTempABCList->next;
+    //     //update mvnodeptrtemplist
+    //     mvnodetptrTempABCList = mvnodetptrTempABCList->next;
 
-    }
+    // }
     
 
-    //need to destroy afterwards
-    DestroyList(&tempABCcomplist);
+    // //need to destroy afterwards
+    // DestroyList(&tempABCcomplist);
 
     //free linechunk at end
     
@@ -558,6 +588,8 @@ void AuthorPrinter(void* data, void *fp, int flag) {
 
         // printf("tesst: %s\n",((Author*)data)->modFileList->head->)
 
+        //the case where the head is null
+
         while(mvptrinauthormdfilelist != NULL)
         {
             //print tab before
@@ -585,8 +617,27 @@ int AuthorEmailComparator(const void* lhs, const void* rhs)  {
 
     Author * lhsauthorst = (Author *)lhs;
     Author * rhsauthorst = (Author *)rhs;
+
+    //check for NULL case
+    char * lhsauthemail = lhsauthorst->email;
+    char * rhsauthemail = rhsauthorst->email;
+
+
+
+    if(lhsauthemail == NULL)
+    {
+        //null case
+        return 0;
+    }
+
+    if( rhsauthemail == NULL)
+    {
+        //null case
+        return 0;
+    }
+
     //call mystrcmp
-    int mystrcmpres = myStrCmp(lhsauthorst->email,rhsauthorst->email);
+    int mystrcmpres = myStrCmp(lhsauthemail,rhsauthemail);
     printf("The comparison value: %d\n",mystrcmpres);
 
     //determine return val
@@ -620,13 +671,16 @@ int AuthorCommitComparator(const void* lhs, const void* rhs) {
     Author * lhsauthorst = (Author *)lhs;
     Author * rhsauthorst = (Author *)rhs;
 
+    int lhscount = lhsauthorst->commitCount;
+    int rhscount = rhsauthorst->commitCount;
+
     //compare in decending order
-    if(lhsauthorst->commitCount > rhsauthorst->commitCount)
+    if(lhscount > rhscount)
     {
         //return -1
         return -1;
     }
-    else if(lhsauthorst->commitCount < rhsauthorst->commitCount)
+    else if(lhscount < rhscount)
     {
         //return 1
         return 1;
@@ -635,6 +689,7 @@ int AuthorCommitComparator(const void* lhs, const void* rhs) {
     {
         //equal 
         //using the authoremail comparator
+        // return 0 ;
         int retvalauthoremailcomp = AuthorEmailComparator(lhs,rhs);
         printf("the authoremail comp return: %d\n",retvalauthoremailcomp);
         //dummy
@@ -706,6 +761,12 @@ Author* CreateAuthor(char* line, long int *timestamp)  {
     //check if commithash, email, fullname , timestamp is empty
     if(*commithashstr == '\0' || *timestampstr == '\0' || *fullnamestr == '\0' || *emailstr == '\0')
     {
+        //need to fix by deleting
+        free(commithashstr);
+        free(timestampstr);
+        free(fullnamestr);
+        free(emailstr);
+
         printf("commit hash empty;\n");
         return NULL;
     }
@@ -760,21 +821,38 @@ void PrintNLinkedList(list_t* list, FILE* fp, int NUM) {
     }
 
     node_t * mvnodeptr = list->head;
-    
 
-    for(int i = 0;i < NUM;i++)
+    if (NUM == 0)
     {
-        if(mvnodeptr == NULL)
+        while(mvnodeptr != NULL)
         {
-            return;
-        }
-        //after null check print
-        list->printer((void *)mvnodeptr->data,(void *)fp,1);
+            //print a node
+            list->printer((void *)mvnodeptr->data,(void *)fp,1);
 
-        //update mvnodeptr
-        mvnodeptr = mvnodeptr->next;
-        
+            //update the node pointer
+            mvnodeptr = mvnodeptr->next;
+        }
+
     }
+    else
+    {
+        //non zero case
+        for(int i = 0;i < NUM;i++)
+        {
+            if(mvnodeptr == NULL)
+            {
+                return;
+            }
+            //after null check print
+            list->printer((void *)mvnodeptr->data,(void *)fp,1);
+
+            //update mvnodeptr
+            mvnodeptr = mvnodeptr->next;
+            
+        }
+    }
+
+    
 
 }
 
