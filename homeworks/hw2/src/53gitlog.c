@@ -179,6 +179,8 @@ int main(int argc, char* argv[]) {
 
     
 
+    
+
     char linechunk[201];
 
     while(fgets(linechunk,201,finputptr) != NULL)
@@ -238,6 +240,55 @@ int main(int argc, char* argv[]) {
             
 
         }
+        else
+        {
+            //for the A flag with 0 or 1
+            //need to create new listfor process mod files
+
+            //first need to check if author is in list
+            node_t * ndeptrinmainlist = FindInList(themainproglist,thecommitauthor);
+            
+
+            //if in list
+            if(ndeptrinmainlist != NULL)
+            {
+                //it is in list
+                //call procmod given the internal list
+                Author * authinptrnde = ndeptrinmainlist->data;
+                //update the commitcount
+                authinptrnde->commitCount++;
+
+                ProcessModFile(finputptr,authinptrnde->modFileList,'a');
+
+
+                //destroy the commitauthor
+                AuthorDeleter(thecommitauthor);
+                //free author struct
+                free(thecommitauthor);
+
+
+            }
+            else
+            {
+                //it is not in the list
+                //call processmod on the current commitauthor
+                ProcessModFile(finputptr,thecommitauthor->modFileList,'a');
+
+                //depending on -a or not is how to place in mainlist
+                if(ORDER_arg == 'a')
+                {
+                    //place in alphabetical order
+                    InsertInOrder(themainproglist,(void*)thecommitauthor);
+                }
+                else
+                {
+                    //place in first seen order
+                    InsertAtTail(themainproglist,(void*)thecommitauthor);
+
+                }
+
+            }
+        }
 
 
     }
@@ -245,8 +296,28 @@ int main(int argc, char* argv[]) {
     //printing
     printf("FINALL LIST PRINTING ++++++++++++++++++++++++++++++++++++++\n");
 
+    if(A_flag == 1 && LEVEL_arg == 0)
+    {
+        node_t * mvauthptr = themainproglist->head;
 
-    PrintNLinkedList(themainproglist,stdout,0);
+        while(mvauthptr != NULL)
+        {
+            //print in level 0
+            AuthorPrinter((void*)mvauthptr->data,(void*)foutputptr,0);
+
+            //update moving ptr
+            mvauthptr = mvauthptr->next;
+
+        }
+    }
+    else
+    {
+        //for all other printing cases
+        PrintNLinkedList(themainproglist,foutputptr,NUM_arg);
+    }
+
+    printf("\n\n\n");
+    
     
 
     //dont for get to delete list at end

@@ -1,0 +1,5 @@
+Total Inserts:3	Total Deletes:0	README.md
+Total Inserts:5	Total Deletes:5	gradlew
+Total Inserts:2	Total Deletes:2	src/main/mars/MarsSplashScreen.java
+Total Inserts:379	Total Deletes:379	src/main/mars/tools/ICS51_Minesweeper.java
+Total Inserts:424	Total Deletes:424	src/main/mars/tools/ICS51_Sudoku.java
