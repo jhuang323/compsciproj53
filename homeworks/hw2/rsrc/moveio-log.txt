@@ -55,7 +55,6 @@ e302500,1645973507,Shawn Cho,shawn2000@outlook.com,,change text
 b02cf42,1645970738,sohsht,sohsht@uw.edu,,merge
 0	4	templates/page.html
 
-a09aa1d,1645970616,sohsht,sohsht@uw.edu,,merge
 6e6a232,1645970479,sohsht,sohsht@uw.edu,,fix
 1	1	app.py
 38	0	static/move.js
@@ -191,7 +190,6 @@ abe3e31,1645931289,sohsht,sohsht@uw.edu,,adfj
 9722661,1645931106,Woo Young Kim,kimwy012@gmail.com,,added theme
 70	19	static/styles/styles.css
 18	4	templates/page.html
-
 
 23d9fac,1645927586,Shawn Cho,shawn2000@outlook.com,,Merge branch 'main' of github.com:ShawnCho2000/moveio into main
 5	1	app.py

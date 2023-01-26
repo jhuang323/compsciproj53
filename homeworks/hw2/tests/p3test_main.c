@@ -44,9 +44,9 @@ int main() {
     Author* mikes = temp; 
 
     // printf("\n******AuthorPrinter Tests******\n");    
-    // AuthorPrinter(&jwongma, stdout, 1);
-    // printf("\n");    
-    // AuthorPrinter(mikes, stderr, 1);
+   //  AuthorPrinter(&jwongma, stdout, 1);
+   //  printf("\n");    
+   //  AuthorPrinter(mikes, stderr, 1);
 
     // printf("\n******AuthorEmailComparator Tests******\n");    
     // int success = AuthorEmailComparator(&jwongma, mikes);

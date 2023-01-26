@@ -61,6 +61,12 @@ int myStrLen(char* str)
 //strcmp
 int myStrCmp(const char* str1,const char* str2)
 {
+    //check for Null
+    if(str1 == NULL && str2 == NULL)
+    {
+        return 0;
+    }
+
     const char * tempstr1ptr = str1;
     const char * tempstr2ptr = str2;
 
@@ -131,14 +137,14 @@ int myCheckStrIsDigit(const char * str)
 //my recurdestroy chain
 void recurdestroylnchain(node_t * anode,list_t * alist)
 {
-    printf("recursive destroy\n");
+    // printf("recursive destroy\n");
 
     if(anode->next != NULL)
     {
         recurdestroylnchain(anode->next,alist);
         
     }
-    printf("freeing\n");
+    // printf("freeing\n");
     //call deleter
     if(anode->data != NULL)
     {
@@ -254,7 +260,7 @@ int myCheckDate(char * givstr,int * monnum,int * daynum, int * yearnum)
     //get year needed
     char * theyearstr =  myStrCpy(mvstrptr2,"/");
     //make sure len == 4
-    if(myStrLen(themonthstr) != 4)
+    if(myStrLen(theyearstr) != 4)
     {
         //free str
         free(thedaystr);
@@ -289,11 +295,42 @@ int myCheckDate(char * givstr,int * monnum,int * daynum, int * yearnum)
     free(themonthstr);
     free(theyearstr);
 
+    //check the dates
+    
+
 
     //return 1 meaning given date is correct
     return 1;
 
     
+}
+
+
+//date conversion to unix
+long int myConvertToUnix(int amon,int aday,int ayear)
+{
+    //convert to epoch
+    struct tm t;
+    time_t t_of_day;
+
+    //year - 1900
+    t.tm_year = ayear - 1900;
+    t.tm_mon = amon - 1; //0 is janurary
+    t.tm_mday = aday;
+
+    //11:59:59 pm
+    t.tm_hour = 23;
+    t.tm_min = 59;
+    t.tm_sec = 59;
+
+    //set dst to unknown
+    t.tm_isdst = -1;
+
+    t_of_day = mktime(&t);
+
+    printf("seconds since Epoch: %ld\n",(long) t_of_day);
+
+    return (long) t_of_day;
 }
 
 

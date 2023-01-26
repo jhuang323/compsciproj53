@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
 
     // Use basic getopt to parse flags and respective arguments
     int option;
-    while ((option = getopt(argc, argv, "HD:A:O:I:n:ad" )) >= 0) {
+    while ((option = getopt(argc, argv, "HD:A:O:I:n:a" )) >= 0) {
         switch (option) {
             case 'H':
 				fprintf(stdout, USAGE_MSG);
@@ -33,7 +33,6 @@ int main(int argc, char* argv[]) {
 				NUM_arg = atoi(optarg);
                 break;
             case 'a':
-            case 'd':
                 smalladcounter += 1;
 				ORDER_arg = option;
                 break;
@@ -49,6 +48,8 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    
+
     // validate a required option was specified - Does not check for more than 1
     if ( ! (A_flag | D_flag) )
     {
@@ -62,16 +63,19 @@ int main(int argc, char* argv[]) {
     //error checking part
 
     //check if -a and -d appears at once
-    if(smalladcounter > 1)
+    // if(smalladcounter > 1)
+    // {
+    //     //arg error
+    //     fprintf(stderr,USAGE_MSG);
+    //     return 1;
+    // }
+    //check if -D and -A appears both times fix this
+    int combDAFlag = D_flag + A_flag;
+    // printf("combDAflag %d\n",combDAFlag);
+    if(combDAFlag != 1)
     {
         //arg error
-        fprintf(stderr,USAGE_MSG);
-        return 1;
-    }
-    //check if -D and -A appears both times
-    if(D_flag == 1 && A_flag == 1)
-    {
-        //arg error
+        // printf("arg ad error!\n");
         fprintf(stderr,USAGE_MSG);
         return 1;
     }
@@ -80,6 +84,8 @@ int main(int argc, char* argv[]) {
     int mnum = 0;
     int dnum = 0;
     int ynum = 0;
+    //the DATE epoch calculated
+    long int calcepochdate = 0;
 
     
 
@@ -92,12 +98,168 @@ int main(int argc, char* argv[]) {
             fprintf(stderr,USAGE_MSG);
             return 1;
         }
+        else
+        {
+            //calc the epoch time
+            printf("time test: \n");
+            calcepochdate = myConvertToUnix(mnum,dnum,ynum);
+
+        }
     
     }
 
     printf("ALLOWED !%d\n",NUM_arg);
 
+    //check if input file can be opened
+    FILE * finputptr = NULL;
+    FILE * foutputptr = NULL;
 
 
+    //check infile
+    if(INFILE != NULL)
+    {
+        //attempt to open infile
+        finputptr = fopen(INFILE,"r");
+
+        if(finputptr == NULL)
+        {
+            //could not open file
+            return 2;
+        }
+    }
+    else
+    {
+        printf("setting to stdin!!!!!!!!!!!!!!");
+        //infile is null default option
+        finputptr = stdin;
+    }
+
+    //checkoutfile
+    if(OUTFILE != NULL)
+    {
+        //attempt to open infile
+        foutputptr = fopen(OUTFILE,"w");
+
+        if(foutputptr == NULL)
+        {
+            //could not open file for write
+            return 2;
+        }
+    }
+    else
+    {
+        //outfile is null default option
+        foutputptr = stdout;
+    }
+
+
+    //the main program
+    //create a list
+    list_t * themainproglist = NULL;
+    // list_t * testlist = CreateList(&ModFileABC_Comparator,&ModFile_Printer,&ModFile_Deleter);
+
+    //check for D or A flag
+    if(D_flag == 1)
+    {
+        themainproglist = CreateList(&ModFileABC_Comparator,&ModFile_Printer,&ModFile_Deleter);
+    }
+    else
+    {
+        //for the A flag
+        themainproglist = CreateList(&AuthorEmailComparator,&AuthorPrinter,&AuthorDeleter);
+    }
+
+    //init char for the ordering
+    char orderargument = 'f';
+    if(ORDER_arg == 'a')
+    {
+        //set orderarg to a
+        orderargument = 'a';
+    }
+
+    
+
+    char linechunk[201];
+
+    while(fgets(linechunk,201,finputptr) != NULL)
+    {
+        printf("The main prog line is :\n");
+        printf("%s|*\n",linechunk);
+
+        long int authtimestamp = -1;
+        Author * thecommitauthor = CreateAuthor(linechunk,&authtimestamp);
+
+        //error check author and timestamp
+
+
+
+        //for the D flag
+        if(D_flag == 1)
+        {
+            // the main prog list stors modfile structs
+
+            //check if timestamp > DATE
+            if(authtimestamp > calcepochdate)
+            {
+                printf("NOT SKIPPTING +++++++++++++++++++++++++++++++++++++++++++");
+                //run processmodfile
+                ProcessModFile(finputptr,themainproglist,orderargument);
+                
+
+                //printing
+                // printf("PRINTING ++++++++++++++++++++++++++++++++++++++\n");
+                // PrintLinkedList(themainproglist,stdout);
+
+            }
+            else
+            {
+                printf("SKIPPTING +++++++++++++++++++++++++++++++++++++++++++");
+                //advance the lines until a \n is found
+                while(fgets(linechunk,201,finputptr) != NULL)
+                {
+
+                    printf("Theline is :\n");
+                    printf("%s|*\n",linechunk);
+
+                    if(myStrCmp(linechunk,"\n") == 0)
+                    {
+                        printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!n DETECTED!!!!!!!!!!!!!!\n");
+                        break;
+                    }
+                }
+                
+            }
+
+            //author is not being used so delete it
+            AuthorDeleter(thecommitauthor);
+            //free author struct
+            free(thecommitauthor);
+
+            
+
+        }
+
+
+    }
+
+    //printing
+    printf("FINALL LIST PRINTING ++++++++++++++++++++++++++++++++++++++\n");
+
+
+    PrintNLinkedList(themainproglist,stdout,0);
+    
+
+    //dont for get to delete list at end
+    DestroyList(&themainproglist);
+
+    //close the files at the end
+    fclose(finputptr);
+    fclose(foutputptr);
+
+    
+
+
+
+    //success
     return 0;
 }
