@@ -69,6 +69,8 @@ int main(int argc, char* argv[]) {
     //     fprintf(stderr,USAGE_MSG);
     //     return 1;
     // }
+
+    
     //check if -D and -A appears both times fix this
     int combDAFlag = D_flag + A_flag;
     // printf("combDAflag %d\n",combDAFlag);
@@ -78,6 +80,18 @@ int main(int argc, char* argv[]) {
         // printf("arg ad error!\n");
         fprintf(stderr,USAGE_MSG);
         return 1;
+    }
+
+    //check if -A that the LEVEL is 0 or 1
+    if(A_flag == 1)
+    {
+        //check if LEVEL is 0 or 1
+        if(LEVEL_arg < 0 || LEVEL_arg > 1)
+        {
+            //return error
+            fprintf(stderr,USAGE_MSG);
+            return 1;
+        }
     }
 
     //check DATE is correct
@@ -94,21 +108,21 @@ int main(int argc, char* argv[]) {
         if(myCheckDate(DATE_arg,&mnum,&dnum,&ynum) == 0)
         {
             //error arg DATE
-            printf("DATTE ERROR!\n");
+            // printf("DATTE ERROR!\n");
             fprintf(stderr,USAGE_MSG);
             return 1;
         }
         else
         {
             //calc the epoch time
-            printf("time test: \n");
+            // printf("time test: \n");
             calcepochdate = myConvertToUnix(mnum,dnum,ynum);
 
         }
     
     }
 
-    printf("ALLOWED !%d\n",NUM_arg);
+    // printf("ALLOWED !%d\n",NUM_arg);
 
     //check if input file can be opened
     FILE * finputptr = NULL;
@@ -129,7 +143,7 @@ int main(int argc, char* argv[]) {
     }
     else
     {
-        printf("setting to stdin!!!!!!!!!!!!!!");
+        // printf("setting to stdin!!!!!!!!!!!!!!");
         //infile is null default option
         finputptr = stdin;
     }
@@ -179,19 +193,25 @@ int main(int argc, char* argv[]) {
 
     
 
+    //need to dynamically allocate
+    char * linechunk = (char *)malloc(sizeof(char) * 201);
+
     
 
-    char linechunk[201];
-
-    while(fgets(linechunk,201,finputptr) != NULL)
+    while(fgets(linechunk,200,finputptr) != NULL)
     {
-        printf("The main prog line is :\n");
-        printf("%s|*\n",linechunk);
+        // printf("The main prog line is :\n");
+        // printf("%s|*\n",linechunk);
 
         long int authtimestamp = -1;
         Author * thecommitauthor = CreateAuthor(linechunk,&authtimestamp);
 
         //error check author and timestamp
+        if(authtimestamp == -1 || thecommitauthor == NULL)
+        {
+            //special case 3
+            return 3;
+        }
 
 
 
@@ -203,7 +223,7 @@ int main(int argc, char* argv[]) {
             //check if timestamp > DATE
             if(authtimestamp > calcepochdate)
             {
-                printf("NOT SKIPPTING +++++++++++++++++++++++++++++++++++++++++++");
+                // printf("NOT SKIPPTING +++++++++++++++++++++++++++++++++++++++++++");
                 //run processmodfile
                 ProcessModFile(finputptr,themainproglist,orderargument);
                 
@@ -215,17 +235,17 @@ int main(int argc, char* argv[]) {
             }
             else
             {
-                printf("SKIPPTING +++++++++++++++++++++++++++++++++++++++++++");
+                // printf("SKIPPTING +++++++++++++++++++++++++++++++++++++++++++");
                 //advance the lines until a \n is found
                 while(fgets(linechunk,201,finputptr) != NULL)
                 {
 
-                    printf("Theline is :\n");
-                    printf("%s|*\n",linechunk);
+                    // printf("Theline is :\n");
+                    // printf("%s|*\n",linechunk);
 
                     if(myStrCmp(linechunk,"\n") == 0)
                     {
-                        printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!n DETECTED!!!!!!!!!!!!!!\n");
+                        // printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!n DETECTED!!!!!!!!!!!!!!\n");
                         break;
                     }
                 }
@@ -294,7 +314,7 @@ int main(int argc, char* argv[]) {
     }
 
     //printing
-    printf("FINALL LIST PRINTING ++++++++++++++++++++++++++++++++++++++\n");
+    // printf("FINALL LIST PRINTING ++++++++++++++++++++++++++++++++++++++\n");
 
     if(A_flag == 1 && LEVEL_arg == 0)
     {
@@ -310,16 +330,76 @@ int main(int argc, char* argv[]) {
 
         }
     }
+    else if(A_flag == 1 && LEVEL_arg == 1)
+    {
+        //-A 1 command print \n after each author
+
+        node_t * mvauthptr = themainproglist->head;
+
+        if(NUM_arg == 0)
+        {
+            //for when printinf everything in list
+            while(mvauthptr != NULL)
+            {
+                //print in level 1
+                AuthorPrinter((void*)mvauthptr->data,(void*)foutputptr,1);
+
+                // printf("\n");//newline after each author
+
+                //update moving ptr
+                mvauthptr = mvauthptr->next;
+
+                //check if mvauthptr is not null
+                if(mvauthptr != NULL)
+                {
+                    printf("\n");//newline after each author
+                }
+
+            }
+
+        }
+        else
+        {
+            for(int i = 0; i < NUM_arg;i++)
+            {
+                //check if currentNodeptr is NULL
+                if(mvauthptr == NULL)
+                {
+                    break;
+                }
+
+                //print in level 1
+                AuthorPrinter((void*)mvauthptr->data,(void*)foutputptr,1);
+
+                
+
+                //update moving ptr
+                mvauthptr = mvauthptr->next;
+
+                //check if mvauthptr is not null
+                if(mvauthptr != NULL)
+                {
+                    printf("\n");//newline after each author
+                }
+
+            }
+        }
+
+        
+
+    }
     else
     {
         //for all other printing cases
         PrintNLinkedList(themainproglist,foutputptr,NUM_arg);
     }
 
-    printf("\n\n\n");
+    
     
     
 
+    //destroy linechunk at the end
+    free(linechunk);
     //dont for get to delete list at end
     DestroyList(&themainproglist);
 

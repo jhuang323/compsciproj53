@@ -35,6 +35,8 @@ void InsertInReverseOrder(list_t* list, void* val_ref);
 //date conversion to unix
 long int myConvertToUnix(int amon,int aday,int ayear);
 
+//void myprintAnoption(list_t * list,FILE * fp,int NUM);
+
 
 
 #endif

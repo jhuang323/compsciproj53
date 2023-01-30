@@ -220,7 +220,7 @@ int myCheckDate(char * givstr,int * monnum,int * daynum, int * yearnum)
         mvcharptr++;
     }
 
-    printf("slashnum: %d\n",slashnum);
+    // printf("slashnum: %d\n",slashnum);
 
     if(slashnum != 2)
     {
@@ -271,7 +271,7 @@ int myCheckDate(char * givstr,int * monnum,int * daynum, int * yearnum)
     }
     mvstrptr2 += myStrLen(theyearstr) + 1;
 
-    printf("the day str: %s the month str: %s the year str: %s \n",thedaystr,themonthstr,theyearstr);
+    // printf("the day str: %s the month str: %s the year str: %s \n",thedaystr,themonthstr,theyearstr);
 
     if(myCheckStrIsDigit(thedaystr) == 0 || myCheckStrIsDigit(themonthstr) == 0 || myCheckStrIsDigit(theyearstr) == 0)
     {
@@ -328,9 +328,50 @@ long int myConvertToUnix(int amon,int aday,int ayear)
 
     t_of_day = mktime(&t);
 
-    printf("seconds since Epoch: %ld\n",(long) t_of_day);
+    // printf("seconds since Epoch: %ld\n",(long) t_of_day);
 
     return (long) t_of_day;
 }
 
+// void myprintAnoption(list_t * list,FILE * fp,int NUM)
+// {
+//     //check if NUM is zero
+//     if(NUM == 0)
+//     {
+//         //print everything in the list_t
+//         node_t * mvauthptr = list->head;
 
+//         while(mvauthptr != NULL)
+//         {
+//             //print in level 0
+//             AuthorPrinter((void*)mvauthptr->data,(void*)fp,0);
+
+//             //update moving ptr
+//             mvauthptr = mvauthptr->next;
+
+//         }
+
+//     }
+//     else
+//     {
+//         //NUM is not zero print n times
+//         node_t * mvauthptr = list->head;
+
+//         for(int i = 0;i<NUM;i++)
+//         {
+//             //check if mvauthptr is NULL
+//             if(mvauthptr == NULL)
+//             {
+//                 break;
+//             }
+
+//             //print in level 0
+//             AuthorPrinter((void*)mvauthptr->data,(void*)fp,0);
+
+//             //update the moving ptr
+//             mvauthptr = mvauthptr->next;
+//         }
+
+
+//     }
+// }

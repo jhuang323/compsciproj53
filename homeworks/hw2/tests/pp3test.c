@@ -79,7 +79,7 @@ int main()
 
     
 
-
+    printf("epoch time test: %ld\n",myConvertToUnix(12,31,1969));
 
 
 
