@@ -13,6 +13,7 @@ int main() {
   if (pid == 0) {
     printf("child: After the call to fork()\n");
   } else {
+    sleep(1);
     printf("parent: After the call to fork()\n");
   }
 

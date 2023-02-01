@@ -10,11 +10,13 @@ int main() {
   pid = fork();
   if (pid == 0) {
     /*this is the child*/
+    sleep(1);
     printf("child : x=%d\n", ++x);
     exit(0);
   }
 
   /* parent code */
+  // sleep(1);
   printf("parent : x=%d\n", --x);
 
   exit(0);

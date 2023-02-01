@@ -16,14 +16,14 @@ int main() {
   pid = fork();
   if (pid == 0) {
     /*this is the child*/
-    while ((c = getc(fd)) != 0xff) {
+    while ((c = getc(fd)) != EOF) {
       printf("child: %c\n", c);
     }
     exit(0);
   }
 
   /* parent code */
-  while ((c = getc(fd)) != 0xff) {
+  while ((c = getc(fd)) != EOF) {
     printf("parent: %c\n", c);
   }
 

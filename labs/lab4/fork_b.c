@@ -10,6 +10,8 @@ int main() {
   pid = fork();
   if (pid == 0) {
     /*this is the child*/
+    //add sleep
+    // sleep(1);
     for (i = 0; i <= x; i++) {
       printf("child : %d\n", i);
     }
@@ -17,6 +19,8 @@ int main() {
   }
 
   /* parent code */
+  //added sleep
+  // sleep(1);
   for (i = x; i >= 0; i--) {
     printf("parent : %d\n", i);
   }
