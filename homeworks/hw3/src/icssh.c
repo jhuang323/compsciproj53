@@ -1,5 +1,8 @@
 #include "icssh.h"
 #include <readline/readline.h>
+#include "helpers.h"
+//mines
+// #include "linkedList.h"
 
 int main(int argc, char* argv[]) {
 	int exec_result;
@@ -11,11 +14,18 @@ int main(int argc, char* argv[]) {
     rl_outstream = fopen("/dev/null", "w");
 #endif
 
+	//test set up sigchild handler
+	signal(SIGCHLD, sigkill_handler);
+
 	// Setup segmentation fault handler
 	if (signal(SIGSEGV, sigsegv_handler) == SIG_ERR) {
 		perror("Failed to set signal handler");
 		exit(EXIT_FAILURE);
 	}
+
+	//create own list_t that stores bgentry_t
+	List_t * testlist = CreateList(NULL); //need to delete after wards
+
 
     	// print the prompt & wait for the user to enter commands string
 	while ((line = readline(SHELL_PROMPT)) != NULL) {
@@ -38,8 +48,88 @@ int main(int argc, char* argv[]) {
 			free(line);
 			free_job(job);
             		validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+
+			//test call deletelist
+			printf("freeing list\n");
+			deleteList(testlist);
+			free(testlist);
             		return 0;
 		}
+
+		//test built in command
+		if(strcmp(job->procs->cmd, "cd") == 0)
+		{
+			printf("Changing directory\n");
+
+			// chdir
+			//check if argc > 1, ingore additional arguments
+			int cdreti = 0;
+			if(job->procs->argc > 1)
+			{
+				// for when the directory is specified
+				char * thepathname = (job->procs->argv)[1];
+				printf("the gotten dir: %s\n",thepathname);
+				cdreti = chdir(thepathname);
+				printf("the return vall: %d\n",cdreti);
+			}
+			else
+			{
+
+				printf("changing to home\n");
+				char * thepathname = getenv("HOME");
+				printf("%s\n",thepathname);
+
+				cdreti = chdir(thepathname);
+
+				printf("the return vall def: %d\n",cdreti);
+
+			}
+
+			//check if error occured 
+			if(cdreti == -1)
+			{
+				printf("Error occured\n");
+
+				//change unsuccessful
+				fprintf(stderr,DIR_ERR);
+			}
+			else
+			{
+				//change was successful
+				printf("change success\n");
+
+				char * cwdstr = getcwd(NULL,0);
+				printf("test getcwd %s\n",cwdstr);
+
+				fprintf(stdout,"%s\n",cwdstr);
+
+				//free str from getcwd
+				free(cwdstr);
+			}
+
+			//terminate shell afterwards no
+			free(line);
+			free_job(job);
+			// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+            continue;
+
+
+		}
+
+		//test estatus
+		if(strcmp(job->procs->cmd, "estatus") == 0)
+		{
+			//print exit status
+			printf("%d\n",exit_status);
+
+			//terminate shell afterwards no
+			free(line);
+			free_job(job);
+			// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+            continue;
+		}
+
+		
 
 		// example of good error handling!
 		if ((pid = fork()) < 0) {
@@ -63,6 +153,16 @@ int main(int argc, char* argv[]) {
 			}
 		} else {
             		// As the parent, wait for the foreground job to finish
+					//check if fg process
+			if(job->bg == true)
+			{
+				printf("the background is true\n");
+				
+				//add job to the List_t
+				insertRear(testlist,(void*) job);
+
+				printLList(testlist,stdout);
+			}
 			wait_result = waitpid(pid, &exit_status, 0);
 			if (wait_result < 0) {
 				printf(WAIT_ERR);
@@ -70,12 +170,15 @@ int main(int argc, char* argv[]) {
 			}
 		}
 
-		free_job(job);  // if a foreground job, we no longer need the data
+		// free_job(job);  // if a foreground job, we no longer need the data
 		free(line);
 	}
 
     	// calling validate_input with NULL will free the memory it has allocated
     	validate_input(NULL);
+
+		
+
 
 #ifndef GS
 	fclose(rl_outstream);
