@@ -1,4 +1,6 @@
 #include "linkedList.h"
+//test include
+#include "icssh.h"
 /*
     What is a linked list?
     A linked list is a set of dynamically allocated nodes, arranged in
@@ -55,6 +57,7 @@ void insertRear(List_t* list, void* valref) {
 }
 
 void insertInOrder(List_t* list, void* valref) {
+    // printf("inside insert in order\n");
     if (list->length == 0) {
         insertFront(list, valref);
         return;
@@ -65,6 +68,8 @@ void insertInOrder(List_t* list, void* valref) {
     new_node = malloc(sizeof(node_t));
     new_node->value = valref;
     new_node->next = NULL;
+
+    // printf("inside insert in order2\n");
 
     if (list->comparator(new_node->value, (*head)->value) <= 0) {
         new_node->next = *head;
@@ -107,6 +112,13 @@ void* removeFront(List_t* list) {
     next_node = (*head)->next;
     retval = (*head)->value;
     list->length--;
+
+    //modify free jobs
+    free_job(((bgentry_t*)(*head)->value)->job);
+    //set to nullptr
+    ((bgentry_t*)(*head)->value)->job = NULL;
+    //then free bgentry
+    free((*head)->value);
 
     node_t* temp = *head;
     *head = next_node;
@@ -156,6 +168,12 @@ void* removeByIndex(List_t* list, int index) {
         
 		node_t* temp = *head;
         *head = current->next;
+        //mod free jobs
+        free_job(((bgentry_t*)temp->value)->job);
+        //set to nullptr
+        ((bgentry_t*)temp->value)->job = NULL;
+        //free bgentry
+        free(temp->value);
         free(temp);
         
 		list->length--;
@@ -169,6 +187,14 @@ void* removeByIndex(List_t* list, int index) {
 
     prev->next = current->next;
     retval = current->value;
+
+    //mod free jobs
+    free_job(((bgentry_t*)current->value)->job);
+    //set to nullptr
+    ((bgentry_t*)current->value)->job = NULL;
+    //free bgentry
+    free(current->value);
+
     free(current);
 
     list->length--;

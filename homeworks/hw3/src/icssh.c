@@ -4,6 +4,8 @@
 //mines
 // #include "linkedList.h"
 
+
+
 int main(int argc, char* argv[]) {
 	int exec_result;
 	int exit_status;
@@ -15,7 +17,7 @@ int main(int argc, char* argv[]) {
 #endif
 
 	//test set up sigchild handler
-	signal(SIGCHLD, sigkill_handler);
+	signal(SIGCHLD, sigchild_handler);
 
 	// Setup segmentation fault handler
 	if (signal(SIGSEGV, sigsegv_handler) == SIG_ERR) {
@@ -24,7 +26,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	//create own list_t that stores bgentry_t
-	List_t * testlist = CreateList(NULL); //need to delete after wards
+	List_t * testlist = CreateList(&BgentryTimeComparator); //need to delete after wards
 
 
     	// print the prompt & wait for the user to enter commands string
@@ -41,6 +43,42 @@ int main(int argc, char* argv[]) {
         	#ifdef DEBUG   // If DEBUG flag removed in makefile, this will not longer print
             		debug_print_job(job);
         	#endif
+
+		//test flag for removing zombies
+		if(Scflag == true)
+		{
+			printf("sig child flag is true\n");
+
+			pid_t testwaitpit;
+
+			while((testwaitpit = waitpid((pid_t)-1,0,WNOHANG))> 0)
+			{
+				printf("the pid returned: %d\n",testwaitpit);
+
+				//remove it in the LL if it exists
+				int index = findinLL(testlist,testwaitpit);
+				printf("the index: %d\n",index);
+
+				if(index != -1)
+				{
+					//delete the node
+					removeByIndex(testlist,index);
+				}
+				
+
+				//set flag to false
+				Scflag = false;
+
+			}
+
+			
+
+			//set global flag to false afterwards
+		}
+		// else
+		// {
+		// 	printf("sig child flag is false!\n");
+		// } 
 
 		// example built-in: exit
 		if (strcmp(job->procs->cmd, "exit") == 0) {
@@ -129,6 +167,22 @@ int main(int argc, char* argv[]) {
             continue;
 		}
 
+		//test bglist
+		if(strcmp(job->procs->cmd, "bglist") == 0)
+		{
+			//call print ll
+			printLList(testlist,stderr);
+
+			//terminate shell afterwards no
+			free(line);
+			free_job(job);
+			// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+            continue;
+
+		}
+
+		
+
 		
 
 		// example of good error handling!
@@ -156,21 +210,42 @@ int main(int argc, char* argv[]) {
 					//check if fg process
 			if(job->bg == true)
 			{
+				//background jobs
 				printf("the background is true\n");
 				
-				//add job to the List_t
-				insertRear(testlist,(void*) job);
+				//add bgstruct to the List_t
+				bgentry_t * newbgentry = malloc(sizeof(bgentry_t));
+
+				newbgentry->job = job;
+				newbgentry->pid = pid;
+				newbgentry->seconds = time(NULL);
+				insertInOrder(testlist,(void*) newbgentry);
+
+				//test free index
+				// removeByIndex(testlist,0);
+
+				printf("the background pid: %d\n",pid);
+				printf("time: %ld\n",newbgentry->seconds);
 
 				printLList(testlist,stdout);
 			}
-			wait_result = waitpid(pid, &exit_status, 0);
-			if (wait_result < 0) {
-				printf(WAIT_ERR);
-				exit(EXIT_FAILURE);
+			else
+			{
+				//foreground job
+				
+				wait_result = waitpid(pid, &exit_status, 0);
+				if (wait_result < 0) {
+					printf(WAIT_ERR);
+					exit(EXIT_FAILURE);
+				}
+
+
+				free_job(job);  // if a foreground job, we no longer need the data
 			}
+			
 		}
 
-		// free_job(job);  // if a foreground job, we no longer need the data
+		
 		free(line);
 	}
 
