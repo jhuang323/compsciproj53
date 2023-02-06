@@ -6,9 +6,18 @@
 #include "linkedList.h"
 #include <sys/wait.h>
 #include <errno.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdio.h>
+// #include <csapp.h>
+
+#ifndef MYHELPERS11
+#define MYHELPERS11
 
 //global var
-volatile bool Scflag = false;
+volatile sig_atomic_t Scflag = false;
+
+volatile sig_atomic_t Susr2flag = false;
 
 void sigchild_handler(int signum)
 {
@@ -29,6 +38,43 @@ void sigchild_handler(int signum)
     errno = olderrno;
 
 
+}
+
+void siguser2_handler(int signum)
+{
+    //store errono
+    int olderrno = errno;
+    // write("In the siguser2 %d\n");
+    // Susr2flag = true;
+
+    int thepid = getpid();
+    
+    char buffer[100];
+
+    snprintf(buffer,100,"Hi User! I am process %d\n",thepid);
+
+    // Convert 123 to string [buf]
+    // itoa(num, snum, 10);
+    
+    // printf("printing in usguser2\n");
+     
+    // char * achar = NULL;
+    // strcpy(achar, "a test string");
+    // strcat(achar,"123");
+
+    // printf("the strlen %d\n",strlen(buffer));
+
+    write(STDOUT_FILENO,buffer,strlen(buffer));
+    // char x = 55;
+    // write(1, &x, 1);
+
+
+    // printf("Hi User! I am process %d\n",getpid());
+
+    // write(STDOUT_FILENO,"Child tererm\n",13);
+    // Sio_puts("hello\n");
+    //restore errno
+    errno = olderrno;
 }
 
 int BgentryTimeComparator(void* lhs, void* rhs)
@@ -56,7 +102,7 @@ int BgentryTimeComparator(void* lhs, void* rhs)
 List_t* CreateList(int (*compare)(void*,void*))
 {
     //creating a new list
-    printf("creating new list\n");
+    // printf("creating new list\n");
 
     List_t* list = malloc(sizeof(List_t));
     list->comparator = compare;
@@ -102,7 +148,7 @@ int findinLL(List_t* list,pid_t givenpid)
     {
         //check the pid
         bgentry_t * thebgentryptr = (bgentry_t *)mvnodeptr->value;
-        printf("checking %d\n",thebgentryptr->pid);
+        // printf("checking %d\n",thebgentryptr->pid);
 
         if((thebgentryptr->pid) == givenpid)
         {
@@ -116,3 +162,7 @@ int findinLL(List_t* list,pid_t givenpid)
     }
 
 }
+
+
+
+#endif

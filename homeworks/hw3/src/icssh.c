@@ -17,13 +17,26 @@ int main(int argc, char* argv[]) {
 #endif
 
 	//test set up sigchild handler
-	signal(SIGCHLD, sigchild_handler);
+	if (signal(SIGCHLD, sigchild_handler) == SIG_ERR) {
+		perror("Failed to set sigchild handler");
+		exit(EXIT_FAILURE);
+	}
+	// signal(SIGCHLD, sigchild_handler);
+
+	//test custom sigusr2
+	// signal(SIGUSR2,siguser2_handler);
+	if (signal(SIGUSR2,siguser2_handler) == SIG_ERR) {
+		perror("Failed to set sigusr2 handler");
+		exit(EXIT_FAILURE);
+	}
 
 	// Setup segmentation fault handler
 	if (signal(SIGSEGV, sigsegv_handler) == SIG_ERR) {
 		perror("Failed to set signal handler");
 		exit(EXIT_FAILURE);
 	}
+
+	
 
 	//create own list_t that stores bgentry_t
 	List_t * testlist = CreateList(&BgentryTimeComparator); //need to delete after wards
@@ -47,20 +60,29 @@ int main(int argc, char* argv[]) {
 		//test flag for removing zombies
 		if(Scflag == true)
 		{
-			printf("sig child flag is true\n");
+			// printf("sig child flag is true\n");
 
 			pid_t testwaitpit;
 
 			while((testwaitpit = waitpid((pid_t)-1,0,WNOHANG))> 0)
 			{
-				printf("the pid returned: %d\n",testwaitpit);
+				// printf("the pid returned: %d\n",testwaitpit);
 
 				//remove it in the LL if it exists
 				int index = findinLL(testlist,testwaitpit);
-				printf("the index: %d\n",index);
+				// printf("the index: %d\n",index);
 
 				if(index != -1)
 				{
+					node_t * tarptr = testlist->head;
+
+					//add index
+					tarptr+=index;
+
+					bgentry_t * tarbgent = tarptr->value;
+					//print out background
+					printf(BG_TERM,tarbgent->pid,tarbgent->job->line);
+
 					//delete the node
 					removeByIndex(testlist,index);
 				}
@@ -80,24 +102,63 @@ int main(int argc, char* argv[]) {
 		// 	printf("sig child flag is false!\n");
 		// } 
 
+		//test redirection
+		//test opening files
+		// if(job->in_file != NULL)
+		// {
+		// 	printf("infile is not NULL\n");
+		// 	int finfileptr = open(job->in_file,O_RDONLY);
+
+		// 	//set file descriptor for in
+		// 	dup2(finfileptr,STDIN_FILENO);
+
+		// }
+
+
+
+		//for the sigusr2flag
+		// if(Susr2flag == true)
+		// {
+		// 	// printf("the pid is %d\n",getpid());
+		// 	printf("Hi User! I am process %d\n",getpid());
+		// 	//set back to false
+		// 	Susr2flag = false;
+		// }
+
 		// example built-in: exit
 		if (strcmp(job->procs->cmd, "exit") == 0) {
+			//kill all background jobs
+			node_t * mvnodeptr = testlist->head;
+
+			while(mvnodeptr != NULL)
+			{
+				bgentry_t * bgptr = mvnodeptr->value;
+				//kill the child
+				// printf("the childpid %d\n",bgptr->pid);
+
+				//kill
+				kill(bgptr->pid,SIGKILL);
+
+				//update the ptr
+				mvnodeptr = mvnodeptr->next;
+			}
+
 			// Terminating the shell
 			free(line);
 			free_job(job);
             		validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
 
 			//test call deletelist
-			printf("freeing list\n");
+			// printf("freeing list\n");
 			deleteList(testlist);
 			free(testlist);
             		return 0;
 		}
 
-		//test built in command
+		//test built in command cd
 		if(strcmp(job->procs->cmd, "cd") == 0)
 		{
-			printf("Changing directory\n");
+			// printf("Changing directory\n");
 
 			// chdir
 			//check if argc > 1, ingore additional arguments
@@ -106,27 +167,27 @@ int main(int argc, char* argv[]) {
 			{
 				// for when the directory is specified
 				char * thepathname = (job->procs->argv)[1];
-				printf("the gotten dir: %s\n",thepathname);
+				// printf("the gotten dir: %s\n",thepathname);
 				cdreti = chdir(thepathname);
-				printf("the return vall: %d\n",cdreti);
+				// printf("the return vall: %d\n",cdreti);
 			}
 			else
 			{
 
-				printf("changing to home\n");
+				// printf("changing to home\n");
 				char * thepathname = getenv("HOME");
-				printf("%s\n",thepathname);
+				// printf("%s\n",thepathname);
 
 				cdreti = chdir(thepathname);
 
-				printf("the return vall def: %d\n",cdreti);
+				// printf("the return vall def: %d\n",cdreti);
 
 			}
 
 			//check if error occured 
 			if(cdreti == -1)
 			{
-				printf("Error occured\n");
+				// printf("Error occured\n");
 
 				//change unsuccessful
 				fprintf(stderr,DIR_ERR);
@@ -134,10 +195,10 @@ int main(int argc, char* argv[]) {
 			else
 			{
 				//change was successful
-				printf("change success\n");
+				// printf("change success\n");
 
 				char * cwdstr = getcwd(NULL,0);
-				printf("test getcwd %s\n",cwdstr);
+				// printf("test getcwd %s\n",cwdstr);
 
 				fprintf(stdout,"%s\n",cwdstr);
 
@@ -158,7 +219,7 @@ int main(int argc, char* argv[]) {
 		if(strcmp(job->procs->cmd, "estatus") == 0)
 		{
 			//print exit status
-			printf("%d\n",exit_status);
+			printf("%d\n",WEXITSTATUS(exit_status));
 
 			//terminate shell afterwards no
 			free(line);
@@ -211,7 +272,7 @@ int main(int argc, char* argv[]) {
 			if(job->bg == true)
 			{
 				//background jobs
-				printf("the background is true\n");
+				// printf("the background is true\n");
 				
 				//add bgstruct to the List_t
 				bgentry_t * newbgentry = malloc(sizeof(bgentry_t));
@@ -224,10 +285,10 @@ int main(int argc, char* argv[]) {
 				//test free index
 				// removeByIndex(testlist,0);
 
-				printf("the background pid: %d\n",pid);
-				printf("time: %ld\n",newbgentry->seconds);
+				// printf("the background pid: %d\n",pid);
+				// printf("time: %ld\n",newbgentry->seconds);
 
-				printLList(testlist,stdout);
+				// printLList(testlist,stdout);
 			}
 			else
 			{
@@ -251,7 +312,6 @@ int main(int argc, char* argv[]) {
 
     	// calling validate_input with NULL will free the memory it has allocated
     	validate_input(NULL);
-
 		
 
 
