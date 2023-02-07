@@ -125,6 +125,11 @@ int main(int argc, char* argv[]) {
 		// 	Susr2flag = false;
 		// }
 
+		//test my function for error checking filein, fileout, filerr nodes
+		int retvval = errorcheckfilesgivenvalid(job->in_file,job->out_file,job->procs);
+
+		printf("the retval: %d\n",retvval);
+
 		// example built-in: exit
 		if (strcmp(job->procs->cmd, "exit") == 0) {
 			//kill all background jobs

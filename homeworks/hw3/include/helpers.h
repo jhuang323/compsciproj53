@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include <string.h>
 // #include <csapp.h>
 
 #ifndef MYHELPERS11
@@ -160,6 +161,69 @@ int findinLL(List_t* list,pid_t givenpid)
         //update counter
         counter++;
     }
+
+}
+
+int checkastrandprocinfosame(char * astr,proc_info * starthead)
+{
+    //check if astr is null
+    if(astr == NULL)
+    {
+        return 0;
+    }
+
+    //for loop to go through the proc_info
+    proc_info * mvprocptr = starthead;
+
+    while(mvprocptr != NULL)
+    {
+        //check if the same
+        if((mvprocptr->err_file) != NULL && strcmp(astr,mvprocptr->err_file) == 0)
+        {
+            //they are the same
+            return 1;
+        }
+
+        //update ptr
+        mvprocptr = mvprocptr->next_proc;
+    }
+
+    //after checking all of it not same
+    return 0;
+}
+
+int errorcheckfilesgivenvalid(char * theinfile, char * theoutfile,proc_info * aprocinfohead)
+{
+    //check infile against outfile
+    if(theinfile != NULL && theoutfile != NULL)
+    {
+        if(strcmp(theinfile,theoutfile) == 0)
+        {
+            //error they are the same
+            return 0;
+
+        }
+    }
+
+    //check outfile and procinfo
+    if(checkastrandprocinfosame(theoutfile,aprocinfohead) == 1)
+    {
+        //there is a same
+        return 0;
+    }
+
+    //check infile and procinfo
+    if(checkastrandprocinfosame(theinfile,aprocinfohead) == 1)
+    {
+        //there is a same
+        return 0;
+    }
+
+
+    //after all checks
+    return 1;
+
+
 
 }
 
