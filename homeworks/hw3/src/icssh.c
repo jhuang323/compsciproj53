@@ -153,6 +153,9 @@ int main(int argc, char* argv[]) {
 				bgentry_t * bgptr = mvnodeptr->value;
 				//kill the child
 				// printf("the childpid %d\n",bgptr->pid);
+				//print the bgterm of the killed child
+				printf(BG_TERM,bgptr->pid,bgptr->job->line);
+
 
 				//kill
 				kill(bgptr->pid,SIGKILL);
