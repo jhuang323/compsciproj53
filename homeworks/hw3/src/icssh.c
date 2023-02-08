@@ -265,64 +265,7 @@ int main(int argc, char* argv[]) {
 		}
 
 		
-		//open the infile, outfile ???
-
-		
-		//test openfiles for infile
-		int fdinfile = -1;
-		if(job->in_file != NULL)
-		{
-			fdinfile = open(job->in_file,O_RDONLY);
-
-			
-		}
-
-		// printf("the fdinfo %d\n",fdinfile);
-
-		//check if the infile could not be open
-		if(job->in_file != NULL && fdinfile < 0)
-		{
-			//error the file does not exist
-			fprintf(stderr,RD_ERR);
-
-			//terminate shell afterwards no
-			free(line);
-			free_job(job);
-			// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
-            continue;
-
-		}
-		
-
-		//test openfile for outfile
-		int fdoutfile = -1;
-		if(job->out_file != NULL)
-		{
-			// printf("opening a outfile\n");
-			fdoutfile = open(job->out_file,O_WRONLY|O_CREAT|O_TRUNC,S_IRWXU);
-			// printf("the fdoutfo %d\n",fdoutfile);
-		}
-
-		// printf("the fdoutfo %d\n",fdoutfile);
-
-		//what happens when you cannot access the file ??
-		if(job->out_file != NULL && fdoutfile < 0)
-		{
-			if(fdinfile != -1)
-			{
-				// printf("closing the infile\n");
-				close(fdinfile);
-			}
-
-			//terminate shell afterwards no
-			free(line);
-			free_job(job);
-			// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
-            continue;
-		}
-
-		//init for fd for stderr
-		int fderrfile = -1;
+	
 		
 
 		// example of good error handling!
@@ -333,12 +276,71 @@ int main(int argc, char* argv[]) {
 		if (pid == 0) {  //If zero, then it's the child process
 
             	//get the first command in the job list
-		    proc_info* proc = job->procs;
+		    	proc_info* proc = job->procs;
+
+				//open the infile, outfile ???
+
+		
+				//test openfiles for infile
+				int fdinfile = -1;
+				if(job->in_file != NULL)
+				{
+					fdinfile = open(job->in_file,O_RDONLY);
+
+					
+				}
+
+				// printf("the fdinfo %d\n",fdinfile);
+
+				//check if the infile could not be open
+				if(job->in_file != NULL && fdinfile < 0)
+				{
+					//error the file does not exist
+					fprintf(stderr,RD_ERR);
+
+					//terminate shell afterwards no
+					free(line);
+					free_job(job);
+					// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+					continue;
+
+				}
+				
+
+				//test openfile for outfile
+				int fdoutfile = -1;
+				if(job->out_file != NULL)
+				{
+					// printf("opening a outfile\n");
+					fdoutfile = open(job->out_file,O_WRONLY|O_CREAT|O_TRUNC,0777);
+					// printf("the fdoutfo %d\n",fdoutfile);
+				}
+
+				// printf("the fdoutfo %d\n",fdoutfile);
+
+				//what happens when you cannot access the file ??
+				if(job->out_file != NULL && fdoutfile < 0)
+				{
+					if(fdinfile != -1)
+					{
+						// printf("closing the infile\n");
+						close(fdinfile);
+					}
+
+					//terminate shell afterwards no
+					free(line);
+					free_job(job);
+					// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+					continue;
+				}
+
+				//init for fd for stderr
+				int fderrfile = -1;
 
 			//try to open the std err file
 			if(proc->err_file != NULL)
 			{
-				fderrfile = open(proc->err_file,O_WRONLY|O_CREAT|O_TRUNC,S_IRWXU);
+				fderrfile = open(proc->err_file,O_WRONLY|O_CREAT|O_TRUNC,0777);
 			}
 
 			//check the if the file cannot be accessed
@@ -380,6 +382,24 @@ int main(int argc, char* argv[]) {
 			if(proc->err_file != NULL)
 			{
 				dup2(fderrfile,2);
+			}
+
+			//after dup close the file
+			//close a infile test
+			if(fdinfile != -1)
+			{
+				// printf("closing the infile\n");
+				close(fdinfile);
+			}
+			if(fdoutfile != -1)
+			{
+				// printf("closing the outfile\n");
+				close(fdoutfile);
+			}
+			if(fderrfile != -1)
+			{
+				// printf("closing the errfile\n");
+				close(fderrfile);
 			}
 			
 
@@ -440,21 +460,21 @@ int main(int argc, char* argv[]) {
 
 		//free the infile ??
 		//close a infile test
-		if(fdinfile != -1)
-		{
-			// printf("closing the infile\n");
-			close(fdinfile);
-		}
-		if(fdoutfile != -1)
-		{
-			// printf("closing the outfile\n");
-			close(fdoutfile);
-		}
-		if(fderrfile != -1)
-		{
-			// printf("closing the errfile\n");
-			close(fderrfile);
-		}
+		// if(fdinfile != -1)
+		// {
+		// 	// printf("closing the infile\n");
+		// 	close(fdinfile);
+		// }
+		// if(fdoutfile != -1)
+		// {
+		// 	// printf("closing the outfile\n");
+		// 	close(fdoutfile);
+		// }
+		// if(fderrfile != -1)
+		// {
+		// 	// printf("closing the errfile\n");
+		// 	close(fderrfile);
+		// }
 		
 	}
 
