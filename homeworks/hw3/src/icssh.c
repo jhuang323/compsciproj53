@@ -268,7 +268,7 @@ int main(int argc, char* argv[]) {
 	
 		
 
-		// example of good error handling!
+		// example of good error handling! 
 		if ((pid = fork()) < 0) {
 			perror("fork error");
 			exit(EXIT_FAILURE);
