@@ -371,17 +371,17 @@ int main(int argc, char* argv[]) {
 			//dup for the stdin infile if exist
 			if(job->in_file != NULL)
 			{
-				dup2(fdinfile,0);
+				dup2(fdinfile,STDIN_FILENO);
 			}
 			//dup for stdout outfile if exists
 			if(job->out_file != NULL)
 			{
-				dup2(fdoutfile,1);
+				dup2(fdoutfile,STDOUT_FILENO);
 			}
 			//dup for stderr errfile if exists
 			if(proc->err_file != NULL)
 			{
-				dup2(fderrfile,2);
+				dup2(fderrfile,STDERR_FILENO);
 			}
 
 			//after dup close the file
