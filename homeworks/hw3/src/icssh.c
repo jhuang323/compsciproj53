@@ -128,7 +128,20 @@ int main(int argc, char* argv[]) {
 		//test my function for error checking filein, fileout, filerr nodes
 		int retvval = errorcheckfilesgivenvalid(job->in_file,job->out_file,job->procs);
 
-		printf("the retval: %d\n",retvval);
+		// printf("the retval: %d\n",retvval);
+
+		//if the error check is notvalid print msg
+		if(retvval == 0)
+		{
+			//print error
+			printf(RD_ERR);
+
+			//terminate shell afterwards no
+			free(line);
+			free_job(job);
+			// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+            continue;
+		}
 
 		// example built-in: exit
 		if (strcmp(job->procs->cmd, "exit") == 0) {
@@ -152,6 +165,7 @@ int main(int argc, char* argv[]) {
 			free(line);
 			free_job(job);
             		validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+
 
 			//test call deletelist
 			// printf("freeing list\n");
@@ -248,7 +262,64 @@ int main(int argc, char* argv[]) {
 		}
 
 		
+		//open the infile, outfile ???
 
+		
+		//test openfiles for infile
+		int fdinfile = -1;
+		if(job->in_file != NULL)
+		{
+			fdinfile = open(job->in_file,O_RDONLY);
+
+			
+		}
+
+		// printf("the fdinfo %d\n",fdinfile);
+
+		//check if the infile could not be open
+		if(job->in_file != NULL && fdinfile < 0)
+		{
+			//error the file does not exist
+			fprintf(stderr,RD_ERR);
+
+			//terminate shell afterwards no
+			free(line);
+			free_job(job);
+			// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+            continue;
+
+		}
+		
+
+		//test openfile for outfile
+		int fdoutfile = -1;
+		if(job->out_file != NULL)
+		{
+			// printf("opening a outfile\n");
+			fdoutfile = open(job->out_file,O_WRONLY|O_CREAT|O_TRUNC,S_IRWXU);
+			// printf("the fdoutfo %d\n",fdoutfile);
+		}
+
+		// printf("the fdoutfo %d\n",fdoutfile);
+
+		//what happens when you cannot access the file ??
+		if(job->out_file != NULL && fdoutfile < 0)
+		{
+			if(fdinfile != -1)
+			{
+				// printf("closing the infile\n");
+				close(fdinfile);
+			}
+
+			//terminate shell afterwards no
+			free(line);
+			free_job(job);
+			// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+            continue;
+		}
+
+		//init for fd for stderr
+		int fderrfile = -1;
 		
 
 		// example of good error handling!
@@ -257,8 +328,58 @@ int main(int argc, char* argv[]) {
 			exit(EXIT_FAILURE);
 		}
 		if (pid == 0) {  //If zero, then it's the child process
+
             	//get the first command in the job list
 		    proc_info* proc = job->procs;
+
+			//try to open the std err file
+			if(proc->err_file != NULL)
+			{
+				fderrfile = open(proc->err_file,O_WRONLY|O_CREAT|O_TRUNC,S_IRWXU);
+			}
+
+			//check the if the file cannot be accessed
+			if(proc->err_file != NULL && fderrfile < 0)
+			{
+				if(fdinfile != -1)
+				{
+					// printf("closing the infile\n");
+					close(fdinfile);
+				}
+
+				if(fdoutfile != -1)
+				{
+					// printf("closing the infile\n");
+					close(fdoutfile);
+				}
+
+
+
+				//terminate shell afterwards no
+				free(line);
+				free_job(job);
+				// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+				continue;
+			}
+
+
+			//dup for the stdin infile if exist
+			if(job->in_file != NULL)
+			{
+				dup2(fdinfile,0);
+			}
+			//dup for stdout outfile if exists
+			if(job->out_file != NULL)
+			{
+				dup2(fdoutfile,1);
+			}
+			//dup for stderr errfile if exists
+			if(proc->err_file != NULL)
+			{
+				dup2(fderrfile,2);
+			}
+			
+
 			exec_result = execvp(proc->cmd, proc->argv);
 			if (exec_result < 0) {  //Error checking
 				printf(EXEC_ERR, proc->cmd);
@@ -313,6 +434,25 @@ int main(int argc, char* argv[]) {
 
 		
 		free(line);
+
+		//free the infile ??
+		//close a infile test
+		if(fdinfile != -1)
+		{
+			// printf("closing the infile\n");
+			close(fdinfile);
+		}
+		if(fdoutfile != -1)
+		{
+			// printf("closing the outfile\n");
+			close(fdoutfile);
+		}
+		if(fderrfile != -1)
+		{
+			// printf("closing the errfile\n");
+			close(fderrfile);
+		}
+		
 	}
 
     	// calling validate_input with NULL will free the memory it has allocated
