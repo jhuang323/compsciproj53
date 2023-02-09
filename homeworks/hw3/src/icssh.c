@@ -12,6 +12,7 @@ int main(int argc, char* argv[]) {
 	pid_t pid;
 	pid_t wait_result;
 	char* line;
+	int exitflag = 0;
 #ifdef GS
     rl_outstream = fopen("/dev/null", "w");
 #endif
@@ -72,11 +73,21 @@ int main(int argc, char* argv[]) {
 				int index = findinLL(testlist,testwaitpit);
 				// printf("the index: %d\n",index);
 
+				// printLList(testlist,stdout);
+
+
 				if(index != -1)
 				{
 					node_t * tarptr = testlist->head;
 
-					//add index
+					// printf("test print the pid %d\n",*((tarptr->value)->pid));
+
+					//move the index
+					// for(int i = 0; i < index; i++)
+					// {
+					// 	tarptr = tarptr->next;
+					// }
+					
 					tarptr+=index;
 
 					bgentry_t * tarbgent = tarptr->value;
@@ -143,8 +154,10 @@ int main(int argc, char* argv[]) {
             continue;
 		}
 
+		
+
 		// example built-in: exit
-		if (strcmp(job->procs->cmd, "exit") == 0) {
+		if (strcmp(job->procs->cmd, "exit") == 0 || exitflag == 1) {
 			//kill all background jobs
 			node_t * mvnodeptr = testlist->head;
 
@@ -154,11 +167,15 @@ int main(int argc, char* argv[]) {
 				//kill the child
 				// printf("the childpid %d\n",bgptr->pid);
 				//print the bgterm of the killed child
+				// if(exitflag == 0)
+				// {
+
+				// }
 				printf(BG_TERM,bgptr->pid,bgptr->job->line);
 
 
 				//kill
-				kill(bgptr->pid,SIGKILL);
+				kill(bgptr->pid,SIGTERM);
 
 				//update the ptr
 				mvnodeptr = mvnodeptr->next;
@@ -264,62 +281,109 @@ int main(int argc, char* argv[]) {
 
 		}
 
+		//opening the files
+		//open the infile, outfile ???
+
+		
+		//test openfiles for infile
+		int fdinfile = -1;
+		if(job->in_file != NULL)
+		{
+			fdinfile = open(job->in_file,O_RDONLY);
+			
+		}
+
+		// printf("the fdinfo %d\n",fdinfile);
+
+		//check if the infile could not be open
+		if(job->in_file != NULL && fdinfile < 0)
+		{
+			// printf("warning the indne\n");
+			//error the file does not exist
+			fprintf(stderr,RD_ERR);
+
+			//terminate shell afterwards no
+			free(line);
+			free_job(job);
+			// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+			continue;
+
+		}
+		
+
+		//test openfile for outfile
+		int fdoutfile = -1;
+		if(job->out_file != NULL)
+		{
+			// printf("opening a outfile\n");
+			fdoutfile = open(job->out_file,O_WRONLY|O_CREAT|O_TRUNC,0777);
+			// printf("the fdoutfo %d\n",fdoutfile);
+		}
+
+		// printf("the fdoutfo %d\n",fdoutfile);
+
+		//what happens when you cannot access the file ??
+		if(job->out_file != NULL && fdoutfile < 0)
+		{
+			if(fdinfile != -1)
+			{
+				// printf("closing the infile\n");
+				close(fdinfile);
+			}
+
+			//terminate shell afterwards no
+			free(line);
+			free_job(job);
+			// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+			continue;
+		}
+
+		//tesing ddebug
+		// printf("teesting the pipes\n");
+
+		
 		
 	
-		
 
 		// example of good error handling! 
 		if ((pid = fork()) < 0) {
 			perror("fork error");
 			exit(EXIT_FAILURE);
 		}
-		if (pid == 0) {  //If zero, then it's the child process
-
-            	//get the first command in the job list
-		    	proc_info* proc = job->procs;
-
-				//open the infile, outfile ???
 
 		
-				//test openfiles for infile
-				int fdinfile = -1;
-				if(job->in_file != NULL)
-				{
-					fdinfile = open(job->in_file,O_RDONLY);
 
-					
-				}
 
-				// printf("the fdinfo %d\n",fdinfile);
+		//test for the case num proc is 1
 
-				//check if the infile could not be open
-				if(job->in_file != NULL && fdinfile < 0)
-				{
-					//error the file does not exist
-					fprintf(stderr,RD_ERR);
+		if(job->nproc == 1)
+		{
+			
+			// printf("The num of proc is 1\n");
 
-					//terminate shell afterwards no
-					free(line);
-					free_job(job);
-					// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
-					continue;
+			//for the case where nproc is 1
 
-				}
+
+			if (pid == 0) {  //If zero, then it's the child process
+
+				//get the first command in the job list
+				proc_info* proc = job->procs;
+				// printf("child got %s\n",proc->cmd);
 				
 
-				//test openfile for outfile
-				int fdoutfile = -1;
-				if(job->out_file != NULL)
+				
+
+				//init for fd for stderr
+				int fderrfile = -1;
+
+				//try to open the std err file
+				if(proc->err_file != NULL)
 				{
-					// printf("opening a outfile\n");
-					fdoutfile = open(job->out_file,O_WRONLY|O_CREAT|O_TRUNC,0777);
-					// printf("the fdoutfo %d\n",fdoutfile);
+					fderrfile = open(proc->err_file,O_WRONLY|O_CREAT|O_TRUNC,0777);
 				}
 
-				// printf("the fdoutfo %d\n",fdoutfile);
-
-				//what happens when you cannot access the file ??
-				if(job->out_file != NULL && fdoutfile < 0)
+				//check the if the file cannot be accessed
+				if(proc->err_file != NULL && fderrfile < 0)
 				{
 					if(fdinfile != -1)
 					{
@@ -327,6 +391,14 @@ int main(int argc, char* argv[]) {
 						close(fdinfile);
 					}
 
+					if(fdoutfile != -1)
+					{
+						// printf("closing the infile\n");
+						close(fdoutfile);
+					}
+
+
+
 					//terminate shell afterwards no
 					free(line);
 					free_job(job);
@@ -334,94 +406,512 @@ int main(int argc, char* argv[]) {
 					continue;
 				}
 
-				//init for fd for stderr
-				int fderrfile = -1;
 
-			//try to open the std err file
-			if(proc->err_file != NULL)
-			{
-				fderrfile = open(proc->err_file,O_WRONLY|O_CREAT|O_TRUNC,0777);
+				//dup for the stdin infile if exist
+				if(job->in_file != NULL)
+				{
+					dup2(fdinfile,STDIN_FILENO);
+				}
+				//dup for stdout outfile if exists
+				if(job->out_file != NULL)
+				{
+					dup2(fdoutfile,STDOUT_FILENO);
+				}
+				//dup for stderr errfile if exists
+				if(proc->err_file != NULL)
+				{
+					dup2(fderrfile,STDERR_FILENO);
+				}
+
+				//after dup close the file
+				//close a infile test
+				// if(fdinfile != -1)
+				// {
+				// 	// printf("closing the infile\n");
+				// 	close(fdinfile);
+				// }
+				// if(fdoutfile != -1)
+				// {
+				// 	// printf("closing the outfile\n");
+				// 	close(fdoutfile);
+				// }
+				// if(fderrfile != -1)
+				// {
+				// 	// printf("closing the errfile\n");
+				// 	close(fderrfile);
+				// }
+				
+				// printf("exec %s %s\n",proc->cmd,(proc->argv)[0]);
+				exec_result = execvp(proc->cmd, proc->argv);
+				if (exec_result < 0) {  //Error checking
+					printf(EXEC_ERR, proc->cmd);
+					
+					// Cleaning up to make Valgrind happy 
+					// (not necessary because child will exit. Resources will be reaped by parent)
+					free_job(job);  
+					free(line);
+						validate_input(NULL);  // calling validate_input with NULL will free the memory it has allocated
+
+					exit(EXIT_FAILURE);
+				}
+			} else {
+						// As the parent, wait for the foreground job to finish
+						//check if fg process
+				if(job->bg == true)
+				{
+					sigset_t mask,prevmask;
+					//set empty set
+					//background jobs
+					// printf("the background is true\n");
+					
+					//add bgstruct to the List_t
+					bgentry_t * newbgentry = malloc(sizeof(bgentry_t));
+
+					newbgentry->job = job;
+					newbgentry->pid = pid;
+					newbgentry->seconds = time(NULL);
+					insertInOrder(testlist,(void*) newbgentry);
+
+					//test free index
+					// removeByIndex(testlist,0);
+
+					// printf("the background pid: %d\n",pid);
+					// printf("time: %ld\n",newbgentry->seconds);
+
+					// printLList(testlist,stdout);
+				}
+				else
+				{
+					//foreground job
+					
+					wait_result = waitpid(pid, &exit_status, 0);
+					if (wait_result < 0) {
+						printf(WAIT_ERR);
+						exit(EXIT_FAILURE);
+					}
+
+
+					free_job(job);  // if a foreground job, we no longer need the data
+				}
+				
 			}
+		
 
-			//check the if the file cannot be accessed
-			if(proc->err_file != NULL && fderrfile < 0)
+		
+			
+		}
+		else
+		{
+
+			//for the case when num proc is > 1
+			//remember a child has already been created so need nproc-1 childs
+			// printf("the >1 nproc childs\n");
+
+			//init proc
+			//get the first command in the job list init and it moves
+			proc_info* proc = job->procs;
+
+			//The manager child
+			if(pid == 0)
 			{
-				if(fdinfile != -1)
+				//blocking
+				sigset_t mask,prevmask;
+
+				sigemptyset(&mask);
+				//add sigterm
+				sigaddset(&mask,SIGTERM);
+
+				//block the signal
+				sigprocmask(SIG_BLOCK,&mask,&prevmask);
+
+				
+				// printf("the manager child\n");
+				pid_t mpid;
+
+				//install signal handler for term
+				//test set up sigchild handler
+				if (signal(SIGTERM, sigterm_handler_pipe) == SIG_ERR) {
+					perror("Failed to set sigterm handler");
+					exit(EXIT_FAILURE);
+				}
+				
+				
+
+				//test creating pipes
+				//caclc the num of pipes
+				int calcnumpipes = (job->nproc - 1)*2;
+				// printf("the calc num of pipes %d\n",calcnumpipes);
+
+				int pd2[2];
+				pipe(pd2);
+
+				//init the pipes
+				int thepipelist[calcnumpipes];
+				// init the pipes
+				for(int i = 0;i<calcnumpipes;i = i + 2)
 				{
-					// printf("closing the infile\n");
-					close(fdinfile);
+					//call pip to create a new pipe
+					if(pipe(thepipelist + i) != 0)
+					{
+						//error
+						printf("error creating the pipes!\n");
+					}
 				}
 
-				if(fdoutfile != -1)
+				//need to free the memory
+				// Terminating the shell
+				
+				//get the first command in the job list
+				// proc_info* proc = job->procs;
+
+				//printing test
+				
+
+				//close read end
+
+				//close stdout
+				// close(STDOUT_FILENO);
+
+				//close read end
+				// close(thepipelist[0]);
+
+				//set up first pipe set as out
+				// dup2(thepipelist[1],STDOUT_FILENO);
+
+				//test close the read end
+				// close(thepipelist[0]);
+				// //test close write end
+				// close(thepipelist[1]);
+
+				// //close the pipes
+				// close(thepipelist[0]);//close read
+				// close(thepipelist[1]);//cloase write
+
+				//test set up list to kill child
+				pid_t pipechildlist[job->nproc];
+				int pipchildlistct = 0;
+
+				//code for manager
+				int bottomcounter = 1;
+
+				for(int i = 0;i<(job->nproc);i++)
 				{
-					// printf("closing the infile\n");
-					close(fdoutfile);
+					
+					
+
+					//spawn more child process
+					mpid = fork();
+					if(mpid < 0)
+					{
+						printf("Warning the child fail to spawn\n");
+					}
+
+					if(mpid == 0)
+					{
+						if(i == (job->nproc-1))
+						{
+							//in the second ... child
+							//the last child
+
+							// printf("in last chlid %d\n",bottomcounter);
+							// printf("the command: !!!!!!!! %s\n",proc->cmd);
+
+							//close the stdin
+							close(STDIN_FILENO);
+
+							//close the write end
+							close(thepipelist[bottomcounter-2]);//cloase write
+
+
+							//set the in pipe to 0
+							dup2(thepipelist[bottomcounter-3],STDIN_FILENO);
+
+							// //close the pipe
+							// close(pd2[0]);//close read
+							// close(pd2[1]);//cloase write
+
+							//execve
+
+							exec_result = execvp(proc->cmd, proc->argv);
+							if (exec_result < 0) {  //Error checking
+								printf(EXEC_ERR, proc->cmd);
+								
+								// Cleaning up to make Valgrind happy 
+								// (not necessary because child will exit. Resources will be reaped by parent)
+								free_job(job);  
+								free(line);
+									validate_input(NULL);  // calling validate_input with NULL will free the memory it has allocated
+
+								exit(EXIT_FAILURE);
+							}
+						}
+						else if(i == 0)
+						{
+							//get the first command in the job list
+							// proc_info* proc = job->procs;
+
+							//printing test
+							// printf("firstchild %d\n",bottomcounter);
+							// printf("the command: !!!!!!!! %s\n",proc->cmd);
+
+
+							//close read end
+
+							//close stdout
+							close(STDOUT_FILENO);
+
+							//close read end
+							close(thepipelist[0]);
+
+							//set up first pipe set as out
+							dup2(thepipelist[bottomcounter],STDOUT_FILENO);
+
+							//test close the read end
+							// close(thepipelist[0]);
+							// //test close write end
+							// close(thepipelist[1]);
+
+							// //close the pipes
+							// close(thepipelist[0]);//close read
+							// close(thepipelist[1]);//cloase write
+
+							//execve
+
+							exec_result = execvp(proc->cmd, proc->argv);
+							if (exec_result < 0) {  //Error checking
+								printf(EXEC_ERR, proc->cmd);
+								
+								// Cleaning up to make Valgrind happy 
+								// (not necessary because child will exit. Resources will be reaped by parent)
+								free_job(job);  
+								free(line);
+									validate_input(NULL);  // calling validate_input with NULL will free the memory it has allocated
+
+								exit(EXIT_FAILURE);
+							}
+						}
+						else
+						{
+							//not the last child
+							//in the second ... child
+
+							// printf("in middle chlid %d\n",bottomcounter);
+							// printf("the command: !!!!!!!! %s\n",proc->cmd);
+
+							//close read and write
+							close(STDIN_FILENO);
+							close(STDOUT_FILENO);
+
+							
+
+							//close the write end
+							close(thepipelist[bottomcounter-2]);
+
+							//set the in pipe to 0
+							dup2(thepipelist[bottomcounter-3],STDIN_FILENO);
+
+							
+
+							//close the pipes
+							// close(thepipelist[0]);//close read
+							// close(thepipelist[1]);//cloase write
+
+							//close the read end
+							close(thepipelist[bottomcounter-1]);//close read
+
+							//set the out pipe to 0
+							dup2(thepipelist[bottomcounter],STDOUT_FILENO);
+
+							//close the pipes
+							// close(pd2[0]);//close read
+							// close(pd2[1]);//cloase write
+
+							//execve
+
+							exec_result = execvp(proc->cmd, proc->argv);
+							if (exec_result < 0) {  //Error checking
+								printf(EXEC_ERR, proc->cmd);
+								
+								// Cleaning up to make Valgrind happy 
+								// (not necessary because child will exit. Resources will be reaped by parent)
+								free_job(job);  
+								free(line);
+									validate_input(NULL);  // calling validate_input with NULL will free the memory it has allocated
+
+								exit(EXIT_FAILURE);
+							}
+
+						}
+
+					}
+					
+
+					//printing pid
+					// printf("a pid: %d\n",mpid);
+					
+					// //close ?
+					close(thepipelist[1]);
+					close(pd2[1]);
+					// if(i == 0)
+					// {
+					// 	close(thepipelist[1]);
+						
+					// }
+					// if(i == 1)
+					// {
+					// 	close(thepipelist[3]);
+					// }
+					
+					//add the pit to bg entry in case it needs to be kill
+					pipechildlist[pipchildlistct] = mpid;
+					// //update
+					pipchildlistct++;
+
+					
+					
+
+
+
+
+					//closing the files
+					//close test pipes write end
+					if(i != 0)
+					{
+					// 	// wait(NULL);
+						// printf("closing %d\n",(bottomcounter-2));
+						close(thepipelist[bottomcounter-2]);
+					}
+
+					//update counter
+					bottomcounter += 2;
+
+					//move the proc struct
+					proc = proc->next_proc;
+
+					
+				}//end of for loop
+				//in the parent
+
+				//close all pipes in parent
+				int cntdel = 0;
+				for(int i = 0;i<(job->nproc - 1);i++)
+				{
+					close(thepipelist[cntdel]);
+					cntdel += 2;
 				}
 
+				
+
+				// close(thepipelist[0]);
+				// close(thepipelist[2]);
+				
 
 
-				//terminate shell afterwards no
+				// printf("the last pid: %d\n",mpid);
+					
+
+				
+					
+
+					
+					
+					
+					
+				//the parent
+				// close(thepipelist[0]);//close read
+				// close(thepipelist[1]);//cloase write
+
+				// //the parent
+				// //close the pipes
+				// //the parent??
+				// close(pd2[0]);
+				// close(pd2[1]);
+				// wait(0);
+				
+
+				// waitpid(0);
+
+				//wait for all the proc
+				// for(int i = 0;i < job->nproc;i++)
+				// {
+				// 	wait(NULL);
+				// }
+
+				//unblock the signal
+				sigprocmask(SIG_SETMASK,&prevmask,NULL);
+
+				// //check if term sig is recieved
+				// if(Stermflag == true)
+				// {
+				// 	//kill all the childs in list
+				// 	for(int i = 0;i<job->nproc;i++)
+				// 	{
+				// 		printf("the KILLING %d\n",)
+				// 	}
+				// }
+
+
+				// wait(0);
+				
+				int thereswaitpid;
+
+				while((thereswaitpid = waitpid(mpid, &exit_status, WNOHANG)) == 0)
+				{
+					
+					// printf("the wait pid res %d\n",thereswaitpid);
+
+					//check if the signal flag is raised
+					if(Stermflag == true)
+					{
+						// printf("killing the process\n");
+						// use for loop
+
+						for(int i = 0;i<job->nproc;i++)
+						{
+							// printf("KILLING %d\n",pipechildlist[i]);
+							kill(pipechildlist[i],SIGKILL);
+						}
+
+						//break out of the while
+						break;
+
+					}
+					
+				}
+				
+
+				// printf("the wait result %d\n",theres);
+
+				
+
+
+				// Terminating the shell at the end of manager
 				free(line);
 				free_job(job);
-				// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
-				continue;
-			}
+						validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
 
 
-			//dup for the stdin infile if exist
-			if(job->in_file != NULL)
-			{
-				dup2(fdinfile,STDIN_FILENO);
-			}
-			//dup for stdout outfile if exists
-			if(job->out_file != NULL)
-			{
-				dup2(fdoutfile,STDOUT_FILENO);
-			}
-			//dup for stderr errfile if exists
-			if(proc->err_file != NULL)
-			{
-				dup2(fderrfile,STDERR_FILENO);
-			}
+				//test call deletelist
+				// printf("freeing list\n");
+				deleteList(testlist);
+				free(testlist);
 
-			//after dup close the file
-			//close a infile test
-			if(fdinfile != -1)
-			{
-				// printf("closing the infile\n");
-				close(fdinfile);
-			}
-			if(fdoutfile != -1)
-			{
-				// printf("closing the outfile\n");
-				close(fdoutfile);
-			}
-			if(fderrfile != -1)
-			{
-				// printf("closing the errfile\n");
-				close(fderrfile);
-			}
-			
+				//set exit flag
+				// exitflag = 1;
+				return 0;
 
-			exec_result = execvp(proc->cmd, proc->argv);
-			if (exec_result < 0) {  //Error checking
-				printf(EXEC_ERR, proc->cmd);
 				
-				// Cleaning up to make Valgrind happy 
-				// (not necessary because child will exit. Resources will be reaped by parent)
-				free_job(job);  
-				free(line);
-    				validate_input(NULL);  // calling validate_input with NULL will free the memory it has allocated
 
-				exit(EXIT_FAILURE);
+
 			}
-		} else {
-            		// As the parent, wait for the foreground job to finish
-					//check if fg process
+
+
+			//in the parent process
+
 			if(job->bg == true)
 			{
 				//background jobs
-				// printf("the background is true\n");
+				// printf("the background is true %d\n",pid);
 				
 				//add bgstruct to the List_t
 				bgentry_t * newbgentry = malloc(sizeof(bgentry_t));
@@ -441,42 +931,57 @@ int main(int argc, char* argv[]) {
 			}
 			else
 			{
-				//foreground job
-				
+				//forground job
+				//wait for the manager proc to complete forground only pid is of the manager
 				wait_result = waitpid(pid, &exit_status, 0);
-				if (wait_result < 0) {
-					printf(WAIT_ERR);
-					exit(EXIT_FAILURE);
-				}
-
 
 				free_job(job);  // if a foreground job, we no longer need the data
+
 			}
+			
+			
+
+			//test by closing all the pipes
+			// int cntdel = 0;
+			// if(pid != 0)
+			// {
+			// 	for(int i = 0;i<(calcnumpipes);i++)
+			// 	{
+			// 		close(thepipelist[i]);
+			// 		// cntdel += 2;
+			// 	}
+			// }
+			
+
+			
+
+			
+
 			
 		}
 
-		
+
+		//free the line after wards
 		free(line);
 
-		//free the infile ??
-		//close a infile test
-		// if(fdinfile != -1)
-		// {
-		// 	// printf("closing the infile\n");
-		// 	close(fdinfile);
-		// }
-		// if(fdoutfile != -1)
-		// {
-		// 	// printf("closing the outfile\n");
-		// 	close(fdoutfile);
-		// }
+		if(fdinfile != -1)
+		{
+			// printf("closing the infile\n");
+			close(fdinfile);
+		}
+		if(fdoutfile != -1)
+		{
+			// printf("closing the outfile\n");
+			close(fdoutfile);
+		}
 		// if(fderrfile != -1)
 		// {
 		// 	// printf("closing the errfile\n");
 		// 	close(fderrfile);
 		// }
-		
 	}
+		
+		//free the list
 
     	// calling validate_input with NULL will free the memory it has allocated
     	validate_input(NULL);

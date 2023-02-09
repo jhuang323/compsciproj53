@@ -20,6 +20,8 @@ volatile sig_atomic_t Scflag = false;
 
 volatile sig_atomic_t Susr2flag = false;
 
+volatile sig_atomic_t Stermflag = false;
+
 void sigchild_handler(int signum)
 {
     //store errono
@@ -78,6 +80,17 @@ void siguser2_handler(int signum)
     errno = olderrno;
 }
 
+void sigterm_handler_pipe(int signum)
+{
+    //print test
+    printf("the sig term was recieved!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+
+    Stermflag = true;
+
+    //kill the process
+    
+}
+
 int BgentryTimeComparator(void* lhs, void* rhs)
 {
     // printf("in bg time compare\n");
@@ -118,7 +131,7 @@ void printLList(List_t* list, FILE* fp)
     if(list == NULL)
         return;
 
-    printf("in the printing function \n");
+    // printf("in the printing function \n");
 
 
     int counter = 0;
@@ -127,7 +140,7 @@ void printLList(List_t* list, FILE* fp)
         // list->printer(head->data, fp, 0);
         //call the debug_print_job
         counter++;
-        printf("Debug In LL NUM: %d\n",counter);
+        // printf("Debug In LL NUM: %d\n",counter);
         print_bgentry((bgentry_t *) head->value);
         fprintf(fp, "\n");
         head = head->next;
