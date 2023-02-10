@@ -281,62 +281,7 @@ int main(int argc, char* argv[]) {
 
 		}
 
-		//opening the files
-		//open the infile, outfile ???
-
 		
-		//test openfiles for infile
-		int fdinfile = -1;
-		if(job->in_file != NULL)
-		{
-			fdinfile = open(job->in_file,O_RDONLY);
-			
-		}
-
-		// printf("the fdinfo %d\n",fdinfile);
-
-		//check if the infile could not be open
-		if(job->in_file != NULL && fdinfile < 0)
-		{
-			// printf("warning the indne\n");
-			//error the file does not exist
-			fprintf(stderr,RD_ERR);
-
-			//terminate shell afterwards no
-			free(line);
-			free_job(job);
-			// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
-			continue;
-
-		}
-		
-
-		//test openfile for outfile
-		int fdoutfile = -1;
-		if(job->out_file != NULL)
-		{
-			// printf("opening a outfile\n");
-			fdoutfile = open(job->out_file,O_WRONLY|O_CREAT|O_TRUNC,0777);
-			// printf("the fdoutfo %d\n",fdoutfile);
-		}
-
-		// printf("the fdoutfo %d\n",fdoutfile);
-
-		//what happens when you cannot access the file ??
-		if(job->out_file != NULL && fdoutfile < 0)
-		{
-			if(fdinfile != -1)
-			{
-				// printf("closing the infile\n");
-				close(fdinfile);
-			}
-
-			//terminate shell afterwards no
-			free(line);
-			free_job(job);
-			// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
-			continue;
-		}
 
 		//tesing ddebug
 		// printf("teesting the pipes\n");
@@ -370,6 +315,63 @@ int main(int argc, char* argv[]) {
 				proc_info* proc = job->procs;
 				// printf("child got %s\n",proc->cmd);
 				
+
+				//opening the files
+				//open the infile, outfile ???
+
+				
+				//test openfiles for infile
+				int fdinfile = -1;
+				if(job->in_file != NULL)
+				{
+					fdinfile = open(job->in_file,O_RDONLY);
+					
+				}
+
+				// printf("the fdinfo %d\n",fdinfile);
+
+				//check if the infile could not be open
+				if(job->in_file != NULL && fdinfile < 0)
+				{
+					// printf("warning the indne\n");
+					//error the file does not exist
+					fprintf(stderr,RD_ERR);
+
+					//terminate shell afterwards no
+					free(line);
+					free_job(job);
+					// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+					continue;
+
+				}
+				
+
+				//test openfile for outfile
+				int fdoutfile = -1;
+				if(job->out_file != NULL)
+				{
+					// printf("opening a outfile\n");
+					fdoutfile = open(job->out_file,O_WRONLY|O_CREAT|O_TRUNC,0777);
+					// printf("the fdoutfo %d\n",fdoutfile);
+				}
+
+				// printf("the fdoutfo %d\n",fdoutfile);
+
+				//what happens when you cannot access the file ??
+				if(job->out_file != NULL && fdoutfile < 0)
+				{
+					if(fdinfile != -1)
+					{
+						// printf("closing the infile\n");
+						close(fdinfile);
+					}
+
+					//terminate shell afterwards no
+					free(line);
+					free_job(job);
+					// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+					continue;
+				}
 
 				
 
@@ -964,16 +966,16 @@ int main(int argc, char* argv[]) {
 		//free the line after wards
 		free(line);
 
-		if(fdinfile != -1)
-		{
-			// printf("closing the infile\n");
-			close(fdinfile);
-		}
-		if(fdoutfile != -1)
-		{
-			// printf("closing the outfile\n");
-			close(fdoutfile);
-		}
+		// if(fdinfile != -1)
+		// {
+		// 	// printf("closing the infile\n");
+		// 	close(fdinfile);
+		// }
+		// if(fdoutfile != -1)
+		// {
+		// 	// printf("closing the outfile\n");
+		// 	close(fdoutfile);
+		// }
 		// if(fderrfile != -1)
 		// {
 		// 	// printf("closing the errfile\n");
