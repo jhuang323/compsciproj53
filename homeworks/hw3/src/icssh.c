@@ -280,6 +280,17 @@ int main(int argc, char* argv[]) {
             continue;
 
 		}
+		//the extracredit builtins
+		if(strcmp(job->procs->cmd, "ascii53") == 0)
+		{
+			printascii53();//print out the ascii
+
+			//terminate shell afterwards no
+			free(line);
+			free_job(job);
+			// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+            continue;
+		}
 
 		
 
@@ -544,8 +555,8 @@ int main(int argc, char* argv[]) {
 				int calcnumpipes = (job->nproc - 1)*2;
 				// printf("the calc num of pipes %d\n",calcnumpipes);
 
-				int pd2[2];
-				pipe(pd2);
+				// int pd2[2];
+				// pipe(pd2);
 
 				//init the pipes
 				int thepipelist[calcnumpipes];
@@ -556,7 +567,8 @@ int main(int argc, char* argv[]) {
 					if(pipe(thepipelist + i) != 0)
 					{
 						//error
-						printf("error creating the pipes!\n");
+						perror("error creating the pipes!\n");
+						exit(EXIT_FAILURE);
 					}
 				}
 
@@ -605,7 +617,8 @@ int main(int argc, char* argv[]) {
 					mpid = fork();
 					if(mpid < 0)
 					{
-						printf("Warning the child fail to spawn\n");
+						perror("Warning the child fail to spawn\n");
+						exit(EXIT_FAILURE);
 					}
 
 					if(mpid == 0)
@@ -618,6 +631,7 @@ int main(int argc, char* argv[]) {
 							// printf("in last chlid %d\n",bottomcounter);
 							// printf("the command: !!!!!!!! %s\n",proc->cmd);
 
+							//setting up the input portion
 							//close the stdin
 							close(STDIN_FILENO);
 
@@ -628,9 +642,76 @@ int main(int argc, char* argv[]) {
 							//set the in pipe to 0
 							dup2(thepipelist[bottomcounter-3],STDIN_FILENO);
 
-							// //close the pipe
-							// close(pd2[0]);//close read
-							// close(pd2[1]);//cloase write
+							//setting up the output portion if redirection exists
+							//test openfile for outfile
+							int fdoutfile = -1;
+							if(job->out_file != NULL)
+							{
+								// printf("opening a outfile\n");
+								fdoutfile = open(job->out_file,O_WRONLY|O_CREAT|O_TRUNC,0777);
+								// printf("the fdoutfo %d\n",fdoutfile);
+							}
+
+							// printf("the fdoutfo %d\n",fdoutfile);
+
+							//what happens when you cannot access the file ??
+							if(job->out_file != NULL && fdoutfile < 0)
+							{
+
+								//terminate shell afterwards no
+								free(line);
+								free_job(job);
+								// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+								continue;
+							}
+
+							//using dup to change stdout descriptor
+							if(job->out_file != NULL)
+							{
+								//change the stdout to the filedescriptor
+								dup2(fdoutfile,STDOUT_FILENO);
+								close(fdoutfile);
+							}
+
+
+
+							//redirection for stderr
+							//init for fd for stderr
+							int fderrfile = -1;
+
+							//try to open the std err file
+							if(proc->err_file != NULL)
+							{
+								fderrfile = open(proc->err_file,O_WRONLY|O_CREAT|O_TRUNC,0777);
+							}
+
+							//check the if the file cannot be accessed
+							if(proc->err_file != NULL && fderrfile < 0)
+							{
+								if(fdoutfile != -1)
+								{
+									// printf("closing the outfile\n");
+									close(fdoutfile);
+								}
+
+
+
+								//terminate shell afterwards no
+								free(line);
+								free_job(job);
+								// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+								continue;
+							}
+
+							//dup if errfile exists
+							if(proc->err_file != NULL)
+							{
+								//dup the opened infile over to stdin
+								dup2(fderrfile,STDERR_FILENO);
+								//test close the fderrfile
+								close(fderrfile);
+
+							}
 
 							//execve
 
@@ -657,7 +738,85 @@ int main(int argc, char* argv[]) {
 							// printf("the command: !!!!!!!! %s\n",proc->cmd);
 
 
-							//close read end
+							
+							//setting up the stdin of proc if infileexists
+							//check if in file exists
+							//test openfiles for infile
+							int fdinfile = -1;
+							if(job->in_file != NULL)
+							{
+								fdinfile = open(job->in_file,O_RDONLY);
+								
+							}
+
+							// printf("the fdinfo %d\n",fdinfile);
+
+							//check if the infile could not be open
+							if(job->in_file != NULL && fdinfile < 0)
+							{
+								// printf("warning the indne\n");
+								//error the file does not exist
+								fprintf(stderr,RD_ERR);
+
+								//terminate shell afterwards no
+								free(line);
+								free_job(job);
+								// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+								continue;
+
+							}
+
+							//dup if infile exists
+							if(job->in_file != NULL)
+							{
+								//dup the opened infile over to stdin
+								dup2(fdinfile,STDIN_FILENO);
+								//test close the fdinfile
+								close(fdinfile);
+
+							}
+
+							//redirection for stderr
+							//init for fd for stderr
+							int fderrfile = -1;
+
+							//try to open the std err file
+							if(proc->err_file != NULL)
+							{
+								fderrfile = open(proc->err_file,O_WRONLY|O_CREAT|O_TRUNC,0777);
+							}
+
+							//check the if the file cannot be accessed
+							if(proc->err_file != NULL && fderrfile < 0)
+							{
+								if(fdinfile != -1)
+								{
+									// printf("closing the infile\n");
+									close(fdinfile);
+								}
+
+
+
+								//terminate shell afterwards no
+								free(line);
+								free_job(job);
+								// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+								continue;
+							}
+
+							//dup if errfile exists
+							if(proc->err_file != NULL)
+							{
+								//dup the opened infile over to stdin
+								dup2(fderrfile,STDERR_FILENO);
+								//test close the fderrfile
+								close(fderrfile);
+
+							}
+
+							
+
+							//close read end of pipe and setting up the stdout for piping to next proc
 
 							//close stdout
 							close(STDOUT_FILENO);
@@ -665,8 +824,10 @@ int main(int argc, char* argv[]) {
 							//close read end
 							close(thepipelist[0]);
 
-							//set up first pipe set as out
+							//set up first pipe set as stdout
 							dup2(thepipelist[bottomcounter],STDOUT_FILENO);
+
+							
 
 							//test close the read end
 							// close(thepipelist[0]);
@@ -713,10 +874,37 @@ int main(int argc, char* argv[]) {
 							dup2(thepipelist[bottomcounter-3],STDIN_FILENO);
 
 							
+							//redirection for stderr
+							//init for fd for stderr
+							int fderrfile = -1;
 
-							//close the pipes
-							// close(thepipelist[0]);//close read
-							// close(thepipelist[1]);//cloase write
+							//try to open the std err file
+							if(proc->err_file != NULL)
+							{
+								fderrfile = open(proc->err_file,O_WRONLY|O_CREAT|O_TRUNC,0777);
+							}
+
+							//check the if the file cannot be accessed
+							if(proc->err_file != NULL && fderrfile < 0)
+							{
+
+								//terminate shell afterwards no
+								free(line);
+								free_job(job);
+								// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+								continue;
+							}
+
+							//dup if errfile exists
+							if(proc->err_file != NULL)
+							{
+								//dup the opened infile over to stdin
+								dup2(fderrfile,STDERR_FILENO);
+								//test close the fderrfile
+								close(fderrfile);
+
+							}
+							
 
 							//close the read end
 							close(thepipelist[bottomcounter-1]);//close read
@@ -752,8 +940,8 @@ int main(int argc, char* argv[]) {
 					// printf("a pid: %d\n",mpid);
 					
 					// //close ?
-					close(thepipelist[1]);
-					close(pd2[1]);
+					// close(thepipelist[1]);
+					// close(pd2[1]);
 					// if(i == 0)
 					// {
 					// 	close(thepipelist[1]);
@@ -982,8 +1170,6 @@ int main(int argc, char* argv[]) {
 		// 	close(fderrfile);
 		// }
 	}
-		
-		//free the list
 
     	// calling validate_input with NULL will free the memory it has allocated
     	validate_input(NULL);

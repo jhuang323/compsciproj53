@@ -240,6 +240,21 @@ int errorcheckfilesgivenvalid(char * theinfile, char * theoutfile,proc_info * ap
 
 }
 
+void printascii53()
+{
+    //print acscii in ten lines
+    printf("##==##    ####     ####\n"); //1
+    printf("##==##   ##==##    =##=\n"); //2
+    printf("##==##   ##====    =##=\n");//3
+    printf("##==##   ##====    =##=\n");//4
+    printf("##==##   ##====    =##=\n");//5
+    printf("##==##   ##====    =##=\n");//6
+    printf("##==##   ##====    =##=\n");//7
+    printf("##==##   ##====    =##=\n");//8
+    printf("##==##   ##==##    =##=\n");//9
+    printf(" ####    =####=    ####\n");//10
+}
+
 
 
 #endif
