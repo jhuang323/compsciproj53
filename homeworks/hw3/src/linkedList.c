@@ -143,6 +143,14 @@ void* removeRear(List_t* list) {
     }
 
     retval = current->next->value;
+
+    //modify free jobs
+    free_job(((bgentry_t*)((current->next))->value)->job);
+    //set to nullptr
+    ((bgentry_t*)((current->next))->value)->job = NULL;
+    // free bgentry
+    free(((current->next)->value));
+
     free(current->next);
     current->next = NULL;
 

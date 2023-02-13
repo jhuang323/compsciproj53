@@ -43,8 +43,40 @@ int main(int argc, char* argv[]) {
 	List_t * testlist = CreateList(&BgentryTimeComparator); //need to delete after wards
 
 
+	//extra credit customized shell prompt
+	char * theprompt = "";
+	#ifdef DEBUG
+	// char promptarray[100];
+
+	//getting the username
+	char * usernamestr = getenv("USER");
+	if(usernamestr == NULL)
+	{
+		usernamestr = "";
+	}
+
+	// getting the hostname
+	char * hostnamestr = getenv("HOSTNAME");
+    if(hostnamestr == NULL)
+	{
+		hostnamestr = "";
+	}
+
+
+	// getting the pwd
+	char * currentwdstr = getenv("PWD");
+     if(currentwdstr == NULL)
+	{
+		currentwdstr = "";
+	}
+	
+	// #define SHELL_PROMPT "\x1b[1;31m<53shell>$\x1b[0m "
+	theprompt = createcustshellprompt(usernamestr,hostnamestr,currentwdstr);
+	#endif
+
+
     	// print the prompt & wait for the user to enter commands string
-	while ((line = readline(SHELL_PROMPT)) != NULL) {
+	while ((line = readline(theprompt)) != NULL) {
         	// MAGIC HAPPENS! Command string is parsed into a job struct
         	// Will print out error message if command string is invalid
 		job_info* job = validate_input(line);
@@ -83,12 +115,12 @@ int main(int argc, char* argv[]) {
 					// printf("test print the pid %d\n",*((tarptr->value)->pid));
 
 					//move the index
-					// for(int i = 0; i < index; i++)
-					// {
-					// 	tarptr = tarptr->next;
-					// }
+					for(int i = 0; i < index; i++)
+					{
+						tarptr = tarptr->next;
+					}
 					
-					tarptr+=index;
+					// tarptr+=index;
 
 					bgentry_t * tarbgent = tarptr->value;
 					//print out background
@@ -191,6 +223,11 @@ int main(int argc, char* argv[]) {
 			// printf("freeing list\n");
 			deleteList(testlist);
 			free(testlist);
+			//call free prompt line
+			#ifdef DEBUG
+			free(theprompt);
+			#endif
+			
             		return 0;
 		}
 
@@ -241,8 +278,27 @@ int main(int argc, char* argv[]) {
 
 				fprintf(stdout,"%s\n",cwdstr);
 
+				
+
+				//update shell prompt
+				//extra credit customized shell prompt
+				#ifdef DEBUG
+				// printf("updating the pwd\n");
+
+
+				// getting the pwd
+				currentwdstr = cwdstr;
+				// printf("the new str %s\n",cwdstr);
+				
+				//update the shell prompt
+				//free memory first
+				free(theprompt);
+				theprompt = createcustshellprompt(usernamestr,hostnamestr,currentwdstr);
+				#endif
+
 				//free str from getcwd
 				free(cwdstr);
+
 			}
 
 			//terminate shell afterwards no
@@ -284,6 +340,141 @@ int main(int argc, char* argv[]) {
 		if(strcmp(job->procs->cmd, "ascii53") == 0)
 		{
 			printascii53();//print out the ascii
+
+			//terminate shell afterwards no
+			free(line);
+			free_job(job);
+			// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+            continue;
+		}
+		//the extracredit builtin fg
+		if(strcmp(job->procs->cmd, "fg") == 0)
+		{
+
+
+			// printf("in the fg buildin\n");
+
+			if(testlist->head != NULL)
+			{
+				//check the argc count	
+				if(job->procs->argc == 1)
+				{
+					//default fg
+					// printf("the default fg\n");
+
+					int rearind = findrearindx(testlist);
+
+					//get the node
+					node_t * ndelastptr = testlist->head;
+						
+					//move the index
+					for(int i = 0; i < rearind; i++)
+					{
+						// printf("moving \n");
+						ndelastptr = ndelastptr->next;
+					}
+
+					bgentry_t * bgentlstptr = ndelastptr->value;
+
+					//set the pid
+					pid = bgentlstptr->pid;
+
+					// printf("the pid %d\n",pid);
+
+					//wait for the proc in fg
+					wait_result = waitpid(pid, &exit_status, 0);
+					if (wait_result < 0) {
+						printf(WAIT_ERR);
+						exit(EXIT_FAILURE);
+					}
+
+					//after completion remove rear
+					removeByIndex(testlist,rearind);
+					
+
+					//remove the last node at the end
+					// removeRear(testlist);
+
+				}
+				else
+				{
+					//given the pid
+					// printf("given the pid %d\n",atoi((job->procs->argv)[1]));
+
+					// printf("the chec str %d\n",myCheckStrIsDigit((job->procs->argv)[1]));
+
+					if(myCheckStrIsDigit((job->procs->argv)[1]) == 0)
+					{
+						// printf("waiit error in pid\n");
+						//the str is not all digits
+						fprintf(stderr,PID_ERR);
+
+						//terminate shell afterwards no
+						free(line);
+						free_job(job);
+						// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+						continue;
+					}
+
+					
+
+					int retindx = findinLL(testlist,atoi((job->procs->argv)[1]));
+
+					//check if index exists
+					if(retindx < 0)
+					{
+						//the pid DNE
+						//the str is not all digits
+						fprintf(stderr,PID_ERR);
+
+						//terminate shell afterwards no
+						free(line);
+						free_job(job);
+						// validate_input(NULL);   // calling validate_input with NULL will free the memory it has allocated
+						continue;
+
+					}
+					
+					
+
+					// printf("the ret indx %d\n",retindx);
+
+					//get the node
+					node_t * ndelastptr = testlist->head;
+						
+					//move the index
+					for(int i = 0; i < retindx; i++)
+					{
+						// printf("moving \n");
+						ndelastptr = ndelastptr->next;
+					}
+
+					bgentry_t * bgentlstptr = ndelastptr->value;
+
+					//set the pid
+					pid = atoi((job->procs->argv)[1]);
+					
+					// printf("the pid %d\n",pid);
+
+					//wait for the proc in fg
+					wait_result = waitpid(pid, &exit_status, 0);
+					if (wait_result < 0) {
+						printf(WAIT_ERR);
+						exit(EXIT_FAILURE);
+					}
+
+					//after completion remove the index
+					removeByIndex(testlist,retindx);
+
+				}
+
+			}
+			else
+			{
+				//print error
+				fprintf(stderr,PID_ERR);
+			}
+			
 
 			//terminate shell afterwards no
 			free(line);
@@ -1085,6 +1276,11 @@ int main(int argc, char* argv[]) {
 				// printf("freeing list\n");
 				deleteList(testlist);
 				free(testlist);
+				//call free prompt line
+				#ifdef DEBUG
+				free(theprompt);
+				#endif
+				
 
 				//set exit flag
 				// exitflag = 1;
@@ -1173,6 +1369,8 @@ int main(int argc, char* argv[]) {
 
     	// calling validate_input with NULL will free the memory it has allocated
     	validate_input(NULL);
+
+		
 		
 
 

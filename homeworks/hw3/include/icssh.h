@@ -18,7 +18,12 @@
 #define PID_ERR "PROCESS ERROR: Process pid does not exist.\n"
 #define PIPE_ERR "PIPE ERROR: Invalid use of pipe operators.\n"
 
+
 #ifdef DEBUG
+// char * usernamestr = ;
+// printf("the home userlen: %d\n",strlen(usernamestr));
+// char * hostnamestr = getenv("HOSTNAME");
+// char * currentwdstr = getenv("PWD");
 #define SHELL_PROMPT "<53shell>$ "
 #else
 #define SHELL_PROMPT ""

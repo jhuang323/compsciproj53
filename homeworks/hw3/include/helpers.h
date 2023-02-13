@@ -4,6 +4,7 @@
 //test my includes
 #include <signal.h>
 #include "linkedList.h"
+#include "icssh.h"
 #include <sys/wait.h>
 #include <errno.h>
 #include <unistd.h>
@@ -14,6 +15,12 @@
 
 #ifndef MYHELPERS11
 #define MYHELPERS11
+
+//my defines for color
+#define COLORUSERNAME "\x1B[1;32m"
+#define COLORHOSTNAME "\x1B[1;35m"
+#define COLORPWD "\x1B[2;31m"
+#define COLORRESET "\x1B[0m"
 
 //global var
 volatile sig_atomic_t Scflag = false;
@@ -83,7 +90,7 @@ void siguser2_handler(int signum)
 void sigterm_handler_pipe(int signum)
 {
     //print test
-    printf("the sig term was recieved!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+    // printf("the sig term was recieved!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 
     Stermflag = true;
 
@@ -174,6 +181,7 @@ int findinLL(List_t* list,pid_t givenpid)
         //update counter
         counter++;
     }
+    return -1;
 
 }
 
@@ -205,6 +213,33 @@ int checkastrandprocinfosame(char * astr,proc_info * starthead)
     return 0;
 }
 
+int checkerrfilesmatch(proc_info * begprocinfo)
+{
+    //beg procinfo
+    
+    for(proc_info * outerprocptr = begprocinfo; outerprocptr != NULL ;outerprocptr = outerprocptr->next_proc)
+    {
+        //outer forloop err file
+        char * outererrfile = outerprocptr->err_file;
+
+        //inner mpving for loop
+        for(proc_info * innermvprocptr = outerprocptr->next_proc;innermvprocptr != NULL;innermvprocptr = innermvprocptr->next_proc)
+        {
+            // printf("comparinfg %s %s\n",outererrfile,innermvprocptr->err_file);
+            //check the err files
+            if(outererrfile != NULL && (innermvprocptr->err_file) != NULL && strcmp(outererrfile,innermvprocptr->err_file) == 0)
+            {
+                // printf("the are the same\n");
+                //they are the same return 1
+                return 1;
+            }
+        }
+    }
+
+    //all the err files are diff after checking all
+    return 0;
+}
+
 int errorcheckfilesgivenvalid(char * theinfile, char * theoutfile,proc_info * aprocinfohead)
 {
     //check infile against outfile
@@ -232,6 +267,13 @@ int errorcheckfilesgivenvalid(char * theinfile, char * theoutfile,proc_info * ap
         return 0;
     }
 
+    //check the err files are not the same
+    if(checkerrfilesmatch(aprocinfohead) == 1)
+    {
+        //there is a err file that is the same
+        return 0;
+    }
+
 
     //after all checks
     return 1;
@@ -255,6 +297,134 @@ void printascii53()
     printf(" ####    =####=    ####\n");//10
 }
 
+char * createcustshellprompt(char * auser, char * ahostname, char * apwd)
+{
+    int lencalc = 15; // for the defaule53shell..\0
+   
+    //add on the colorlen
+    lencalc += strlen(COLORUSERNAME);
+	
+	lencalc += strlen(auser);
+
+    //add on the resetcolorlen
+    lencalc += strlen(COLORRESET);
+
+	// getting the hostname
+	
+    //add on the colorlen
+    lencalc += strlen(COLORHOSTNAME);
+    
+	lencalc += strlen(ahostname);
+
+    //add on the resetcolorlen
+    lencalc += strlen(COLORRESET);
+
+   
+
+
+	// getting the pwd
+	
+    //add on the colorlen
+    lencalc += strlen(COLORPWD);
+
+	lencalc += strlen(apwd);
+	
+    //add on the resetcolorlen
+    lencalc += strlen(COLORRESET);
+
+    // printf("the size of colors %ld\n",strlen("\x1B[1;31m"));
+
+    //allocate mem for str
+    // printf("the calclen %ld\n",lencalc);
+	char * thedynstr = malloc(sizeof(char)*lencalc);
+
+
+
+    //the concat section
+	strcpy(thedynstr,"<");
+    //username
+    strcat(thedynstr,COLORUSERNAME);
+	strcat(thedynstr,auser);
+    strcat(thedynstr,COLORRESET);
+
+	strcat(thedynstr,"@");
+    //hostname
+    strcat(thedynstr,COLORHOSTNAME);
+	strcat(thedynstr,ahostname);
+    strcat(thedynstr,COLORRESET);
+
+	strcat(thedynstr,":");
+    //pwd
+    strcat(thedynstr,COLORPWD);
+	strcat(thedynstr,apwd);
+    strcat(thedynstr,COLORRESET);
+
+    //add end prompt
+	strcat(thedynstr," 53shell>$ ");
+	// printf("the final str: %s\n",thedynstr);
+
+    return thedynstr;
+}
+
+int findrearindx(List_t* list)
+{
+    node_t * mvnodeptr = list->head;
+
+    int counter = 0;
+
+    while((mvnodeptr->next) != NULL)
+    {
+        //update counter
+        counter++;
+        //update mvnodeptr
+        mvnodeptr = mvnodeptr->next;
+
+    }
+    // printf("rear index is %d\n",counter);
+
+    return counter;
+}
+
+//my isdigit
+int myIsDigit(int achar)
+{
+    //check char if it is digit
+    if(achar < 48 || achar > 57)
+    {
+        //return zero due to it being non int
+        return 0;
+    }
+
+    // is a digit
+    return 1;
+    
+}
+
+//my check if entire string is digit
+int myCheckStrIsDigit(const char * str)
+{
+    //use while loop and myisdigit
+    const char * mvcharptr = str;
+
+    while(*mvcharptr != '\0')
+    {
+        // call isdigit for all chars
+        if(myIsDigit(*mvcharptr) == 0)
+        {
+            //isdigit is not number return 0
+            return 0;
+        }
+
+        //update mvcharptr
+        mvcharptr++;
+
+    }
+
+    //after checking through the str
+    return 1;
+    
+
+}
 
 
 #endif
