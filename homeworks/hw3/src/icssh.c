@@ -1263,6 +1263,13 @@ int main(int argc, char* argv[]) {
 
 				// printf("the wait result %d\n",theres);
 
+				//case where there is still infity in bg
+				for(int i = 0;i<job->nproc;i++)
+				{
+					// printf("KILLING %d\n",pipechildlist[i]);
+					kill(pipechildlist[i],SIGKILL);
+				}
+
 				
 
 
@@ -1320,6 +1327,7 @@ int main(int argc, char* argv[]) {
 				//forground job
 				//wait for the manager proc to complete forground only pid is of the manager
 				wait_result = waitpid(pid, &exit_status, 0);
+
 
 				free_job(job);  // if a foreground job, we no longer need the data
 
