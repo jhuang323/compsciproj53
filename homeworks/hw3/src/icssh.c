@@ -751,17 +751,17 @@ int main(int argc, char* argv[]) {
 
 				//init the pipes
 				int thepipelist[calcnumpipes];
-				// init the pipes
-				for(int i = 0;i<calcnumpipes;i = i + 2)
-				{
-					//call pip to create a new pipe
-					if(pipe(thepipelist + i) != 0)
-					{
-						//error
-						perror("error creating the pipes!\n");
-						exit(EXIT_FAILURE);
-					}
-				}
+				// // init the pipes
+				// for(int i = 0;i<calcnumpipes;i = i + 2)
+				// {
+				// 	//call pip to create a new pipe
+				// 	if(pipe(thepipelist + i) != 0)
+				// 	{
+				// 		//error
+				// 		perror("error creating the pipes!\n");
+				// 		exit(EXIT_FAILURE);
+				// 	}
+				// }
 
 				//need to free the memory
 				// Terminating the shell
@@ -799,8 +799,21 @@ int main(int argc, char* argv[]) {
 				//code for manager
 				int bottomcounter = 1;
 
+				int initpipecounter = 0;
+
 				for(int i = 0;i<(job->nproc);i++)
 				{
+					//initialize the pipes
+					if(i != (job->nproc)-1)
+					{
+						if(pipe((thepipelist + initpipecounter)) != 0)
+						{
+							//error
+							perror("error creating the pipes!\n");
+							exit(EXIT_FAILURE);
+						}
+					}
+					
 					
 					
 
@@ -1161,6 +1174,8 @@ int main(int argc, char* argv[]) {
 					// 	// wait(NULL);
 						// printf("closing %d\n",(bottomcounter-2));
 						close(thepipelist[bottomcounter-2]);
+						//test close read??
+						close(thepipelist[bottomcounter-3]);
 					}
 
 					//update counter
@@ -1169,17 +1184,20 @@ int main(int argc, char* argv[]) {
 					//move the proc struct
 					proc = proc->next_proc;
 
+					//update pipeinit counter
+					initpipecounter += 2;
+
 					
 				}//end of for loop
 				//in the parent
 
 				//close all pipes in parent
-				int cntdel = 0;
-				for(int i = 0;i<(job->nproc - 1);i++)
-				{
-					close(thepipelist[cntdel]);
-					cntdel += 2;
-				}
+				// int cntdel = 0;
+				// for(int i = 0;i<(job->nproc - 1);i++)
+				// {
+				// 	close(thepipelist[cntdel]);
+				// 	cntdel += 2;
+				// }
 
 				
 
