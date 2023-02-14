@@ -1,8 +1,6 @@
 #include "icssh.h"
 #include <readline/readline.h>
 #include "helpers.h"
-//mines
-// #include "linkedList.h"
 
 
 
