@@ -50,14 +50,16 @@ int main(int argc, char* argv[]) {
 	char * usernamestr = getenv("USER");
 	if(usernamestr == NULL)
 	{
-		usernamestr = "";
+		//set default to root
+		usernamestr = "root";
 	}
 
 	// getting the hostname
 	char * hostnamestr = getenv("HOSTNAME");
     if(hostnamestr == NULL)
 	{
-		hostnamestr = "";
+		//set def
+		hostnamestr = "defaulthostname";
 	}
 
 
@@ -65,7 +67,8 @@ int main(int argc, char* argv[]) {
 	char * currentwdstr = getenv("PWD");
      if(currentwdstr == NULL)
 	{
-		currentwdstr = "";
+		//set def to 
+		currentwdstr = "defaultdirectory";
 	}
 	
 	// #define SHELL_PROMPT "\x1b[1;31m<53shell>$\x1b[0m "
