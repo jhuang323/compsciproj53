@@ -4,5 +4,6 @@
 #include <stdint.h>
 
 /* Helper function declarations go here */
+//hw4 helpers
 
 #endif
