@@ -1,8 +1,8 @@
 #!/bin/bash
 
 NETID="huangjk2"
-HWNUM=3
-DIRTOTAR="hw3"
+HWNUM=4
+DIRTOTAR="hw4"
 
 #run make clean first
 cd $DIRTOTAR
