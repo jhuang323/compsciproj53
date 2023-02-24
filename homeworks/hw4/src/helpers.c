@@ -259,3 +259,21 @@ void * removefromlist(ics_free_header ** afreelisthead,void * afreeheaderpointer
     //temporary
     return NULL;
 }
+
+int isblockfreed(uint64_t ablocksize)
+{
+    //use bit masking to check if block is freed
+    // printf("the returrn %d\n",!(ablocksize & 1));
+    return !(ablocksize & 1);
+
+}
+
+int getactualblocksize(uint64_t ablocksize)
+{
+    return (ablocksize & -2);
+}
+
+// int findinlistptr(ics_free_header * afreelisthead,void * afreeheadtocheck)
+// {
+//     //test for the case where afreelisthead is NULL
+// }

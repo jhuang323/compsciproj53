@@ -18,4 +18,10 @@ void insertatheadoflist(ics_free_header ** afreelisthead,void * afreeheaderpoint
 
 void * removefromlist(ics_free_header ** afreelisthead,void * afreeheaderpointer);
 
+int isblockfreed(uint64_t ablocksize);
+
+int getactualblocksize(uint64_t ablocksize);
+
+// int findinlistptr(ics_free_header * afreelisthead,void * afreeheadtocheck);
+
 #endif

@@ -422,7 +422,136 @@ void *ics_malloc(size_t size) {
  * @return 0 upon success, -1 if error and set errno accordingly.
  */
 int ics_free(void *ptr) { 
+
+    //initial error checking
+
+    //check pointer is between prologue and epilogue
+    char * afterprologuebound = beginingofheap + 8;
+    char * beforeepiloguebound = ics_get_brk() - 8;
+    if(ptr < (void *)afterprologuebound || ptr > (void *)beforeepiloguebound)
+    {
+        printf("error prologue/epilogue bounds check failed!\n");
+
+        //set errno
+        errno = EINVAL;
+        return -1;
+    }
+
+    //checking for the givenptr header
+    char * thecurrgivenheader = ptr - 8;
+
+    ics_header * thecurheaderst = (ics_header *)thecurrgivenheader;
+    if(thecurheaderst->hid != HEADER_MAGIC)
+    {
+        //error with header pid
+        printf("header pid is error\n");
+
+        //set errno
+        errno = EINVAL;
+        return -1;
+    }
+
+    //check header is alloc
+    if(isblockfreed(thecurheaderst->block_size) == 1)
+    {
+        //header is freed error
+        printf("error header is freed\n");
+
+        //set errno
+        errno = EINVAL;
+        return -1;
+    }
+
+
+    //footer checks
+    //the pointer to the footer
+    char * thecurrgivenfooter = thecurrgivenheader + (getactualblocksize(thecurheaderst->block_size) - 8);
+
+    ics_footer * thecurfooterst = (ics_footer *)thecurrgivenfooter;
+
+    //check footer fid
+    if(thecurfooterst->fid != FOOTER_MAGIC)
+    {
+        //error with footer pid
+        printf("footer pid is error\n");
+
+        //set errno
+        errno = EINVAL;
+        return -1;
+    }
+
+    //check footer is alloc
+    if(isblockfreed(thecurfooterst->block_size) == 1)
+    {
+        //footer is freed error
+        printf("error footer is freed\n");
+
+        //set errno
+        errno = EINVAL;
+        return -1;
+    }
+
+    //check matching blocksizes between footer and header
+    if(getactualblocksize(thecurheaderst->block_size) != getactualblocksize(thecurfooterst->block_size))
+    {
+        //error the block sizes of footer and header dont match
+        printf("mis match footer and header blk sizes\n");
+
+        //set errno
+        errno = EINVAL;
+        return -1;
+    }
+
+
+    //after error checks
+
+    // //test free the block and put back into freelist
+    //set header to free
+    thecurheaderst->block_size = (thecurheaderst->block_size) & -2;
+    //set footer to free
+    thecurfooterst->block_size = (thecurfooterst->block_size) & -2;
+
+    // //add back to the freelist
+    // insertatheadoflist(&freelist_head,thecurrgivenheader);
+
+    //asize var to store currentsize for coalsecs
+    uint64_t totalblksize = thecurheaderst->block_size;
+
+    //check block after current
+    char * theblkaftercurrentheaderptr = thecurrgivenfooter + 8;
+
+    //check if it is free 
+    if(isblockfreed(((ics_header *) theblkaftercurrentheaderptr)->block_size) == 1)
+    {
+        printf("can reverse coaleses \n");
+        //the blk after current is free can reverse coalse
+
+        //add to the total size
+        totalblksize += ((ics_header *) theblkaftercurrentheaderptr)->block_size;
+
+        //remove the blk after current from the list
+        removefromlist(&freelist_head,theblkaftercurrentheaderptr);
+
+        //move the currentfooterptr to thefooter of theblk after
+        thecurrgivenfooter += ((ics_header *) theblkaftercurrentheaderptr)->block_size;
+
+        //update the current header and footer to new size
+        ((ics_header *) thecurrgivenheader)->block_size = totalblksize;
+
+        //update the current footer
+        ((ics_footer *) thecurrgivenfooter)->block_size = totalblksize;
+        
+
+        
+    }
+
+    //at the end add to the freelist the current header
+    insertatheadoflist(&freelist_head,thecurrgivenheader);
+
+
     return -99999;
+
+    
 }
 
 /********************** EXTRA CREDIT ***************************************/

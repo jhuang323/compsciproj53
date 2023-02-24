@@ -89,18 +89,19 @@ int main()
 
     //test calculations
 
-    int retvv = calcminpayloadsize(8161);
+    // int retvv = calcminpayloadsize(8161);
 
-    printf("the return size %d\n",retvv);
+    // printf("the return size %d\n",retvv);
 
-    int thepagescaclc = calcpagenumbers(retvv + 16,0);
+    // int thepagescaclc = calcpagenumbers(retvv + 16,0);
 
-    printf("the page size is %d\n",thepagescaclc);
+    // printf("the page size is %d\n",thepagescaclc);
 
     //test
-    // ics_mem_init();
+    ics_mem_init();
 
-    // void * theretptr = ics_malloc(16);
+    void * theretptr = ics_malloc(16);
+    ics_malloc(1);
     // // theretptr = ics_malloc(1);
     // ics_payload_print(theretptr);
     // // ics_freelist_print();
@@ -115,15 +116,30 @@ int main()
     // theretptr = ics_malloc(1);
     // char * thestrptr = ics_malloc(16);
 
-    // strcpy(thestrptr,"hellohellohellohellwjsbjdsbjsabjdsabjasdjb");
+    // // strcpy(thestrptr,"hellohellohellohellwjsbjdsbjsabjdsabjasdjb");
 
-    // printf("this is in the malloc str: %s\n",thestrptr);
+    // // printf("this is in the malloc str: %s\n",thestrptr);
+
+    // thestrptr -= 8;
+
+    // ics_header * theheadder  = theretptr - 8;
+
+    // printf("test bit masking %d\n", getactualblocksize(theheadder->block_size));
 
     // ics_payload_print(thestrptr);
-    // ics_freelist_print();
-    // // printf("%d \n",2|1);
+    ics_freelist_print();
+    // printf("%d \n",2|1);
 
-    // ics_mem_fini();
+
+    //test free
+    printf("testing the free section\n");
+    char * anullblktest = (char *)freelist_head + 8;
+    ics_free(theretptr);
+
+    //print afterwards
+    ics_freelist_print();
+
+    ics_mem_fini();
 
     // printf("bit shift test %d\n",((15>>4)<<4) == 15);
 }
