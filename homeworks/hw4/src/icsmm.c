@@ -13,6 +13,11 @@ ics_free_header *freelist_head = NULL;
 
 int allocpagecount = 0;
 
+//store the begining of the heap
+void * beginingofheap = NULL;
+
+void * storenodefortest = NULL;
+
 /*
  * This is your implementation of malloc. It acquires uninitialized memory from  
  * ics_inc_brk() that is 16-byte aligned, as needed.
@@ -31,6 +36,12 @@ void *ics_malloc(size_t size) {
 
     //test getting more than 6 pages
     void * thecurrbrk = ics_get_brk();
+
+    if(allocpagecount == 0)
+    {
+        //set the begining of the heap
+        beginingofheap = thecurrbrk;
+    }
 
     printf("the current breakpoint %p\n",thecurrbrk);
 
@@ -62,7 +73,16 @@ void *ics_malloc(size_t size) {
 
         if(thebegofheapbfinc == ((void *)-1))
         {
+            //when the request for more pages fails due to max limit
             printf("warning the heap inc error\n");
+
+            //set errno to ENOMEM
+            errno = ENOMEM;
+
+            //return null
+            return NULL;
+
+
         }
 
        //need to set up the page
@@ -224,19 +244,171 @@ void *ics_malloc(size_t size) {
         // ics_header_print(storetheheader);
         // ics_freelist_print();
 
+        //test insert
+        // insertatheadoflist(&freelist_head,findinlistptr);
+
+        // if(allocpagecount == 1)
+        // {
+        //     storenodefortest = findinlistptr;
+        // }
+
+        // //test 
+        // if(allocpagecount == 2)
+        // {
+        //     removefromlist(&freelist_head,storenodefortest);
+        // }
+        
+
 
         //adding to the pagecount global
         allocpagecount += numpagescalc;
 
         printf("the global page count is %d\n",allocpagecount);
 
-        return findinlistptr + 8;
+        
+
+        // return findinlistptr + 8;
+
+    }
+    else
+    {
+        // a block has been found in the freelist that can fit the size
+        //remove it from the free list
+        removefromlist(&freelist_head,findinlistptr);
+    }
+
+
+
+    //the splitting portion thereqcalcblksize
+
+    //a pointer to the node that has been removed from list
+    char * thefreeblkofflistptr = findinlistptr;
+
+    //calc for splintering
+
+    size_t diffbetweenfreeandalloc = (((((ics_free_header *) thefreeblkofflistptr)->header)).block_size) - (thereqcalcblksize);
+
+    printf("the calculated block size %ld\n",diffbetweenfreeandalloc);
+
+    int thepaddingnum = 0;
+    int theallocblocksizenum = thereqcalcblksize;
+
+    int issplintering = 0;
+
+    if(diffbetweenfreeandalloc < 32)
+    {
+        //A splinter is present include it in padding
+        printf("Splintering detected!");
+
+        thepaddingnum = diffbetweenfreeandalloc;
+
+        //add the difference to the allocated blocksize
+        theallocblocksizenum += diffbetweenfreeandalloc;
+
+        //set issplintering to true
+        issplintering = 1;
+    }
+
+    //add internal padding in the payload
+    thepaddingnum += (thecalcminpayloadsz - size);
+
+    //the return pointer that points to the payload of alloc block
+    void * thereturnpayloadptr = NULL;
+
+    
+
+
+    //splitting portion
+    if(issplintering == 0)
+    {
+        //no splintering has been detected;
+
+        //set up the alloc portion
+
+        //set the header to correct fields
+        ((ics_header *) thefreeblkofflistptr)->block_size = thereqcalcblksize|1;
+        ((ics_header *) thefreeblkofflistptr)->hid = HEADER_MAGIC;
+        ((ics_header *) thefreeblkofflistptr)->padding_amount = thepaddingnum;
+
+        //store the payload pointer
+        thereturnpayloadptr = thefreeblkofflistptr + 8;
+
+        //move pointer to the footer of alloc block
+        thefreeblkofflistptr += (thereqcalcblksize - 8);
+
+        //set up the alloc block footer
+        ((ics_footer *) thefreeblkofflistptr)->block_size = thereqcalcblksize|1;
+        ((ics_footer *) thefreeblkofflistptr)->fid = FOOTER_MAGIC;
+
+        //move pointer down to the free block to be put into list
+        thefreeblkofflistptr += 8;
+
+        //the pointer of block to be inserted if splitted
+        void * theptrtothefreeblkportion = thefreeblkofflistptr;
+
+        //set up the free block header
+        ((ics_free_header *) thefreeblkofflistptr)->next = NULL;
+        ((ics_free_header *) thefreeblkofflistptr)->prev = NULL;
+
+        ((((ics_free_header *) thefreeblkofflistptr)->header)).block_size = diffbetweenfreeandalloc|0;
+        ((((ics_free_header *) thefreeblkofflistptr)->header)).hid = HEADER_MAGIC;
+        ((((ics_free_header *) thefreeblkofflistptr)->header)).padding_amount = 0;
+
+        //move pointer to freeblock footer
+        thefreeblkofflistptr += (diffbetweenfreeandalloc - 8);
+
+        //set up the free block footer
+        ((ics_footer *) thefreeblkofflistptr)->block_size = diffbetweenfreeandalloc|0;
+        ((ics_footer *) thefreeblkofflistptr)->fid = FOOTER_MAGIC;
+
+
+        //put the free block portion back into list
+        insertatheadoflist(&freelist_head,theptrtothefreeblkportion);
+
+
+
+
+
+
+    }
+    else
+    {
+        //there is a splinter and it must be merged with the 
+
+        //set the up the header to be the alloc block
+        //set the header to correct fields
+        //set the allocbit to 1
+        ((ics_header *) thefreeblkofflistptr)->block_size = (((ics_header *) thefreeblkofflistptr)->block_size)|1;
+        ((ics_header *) thefreeblkofflistptr)->hid = HEADER_MAGIC;
+        ((ics_header *) thefreeblkofflistptr)->padding_amount = thepaddingnum;
+
+        //store the payload pointer
+        thereturnpayloadptr = thefreeblkofflistptr + 8;
+
+
+
+        //move the pointer down account for footer
+        thefreeblkofflistptr += (((((ics_header *) thefreeblkofflistptr)->block_size) - 1) - 8);
+
+        //set up the alloc footer
+        ((ics_footer *) thefreeblkofflistptr)->block_size = (((ics_header *) thefreeblkofflistptr)->block_size)|1;
+        ((ics_footer *) thefreeblkofflistptr)->fid = FOOTER_MAGIC;
+
+
+
 
     }
 
+
+    //at the end return the payload block pointer
+    return thereturnpayloadptr;
+
+
+
+
     //test check if NULL
 
-    return NULL;
+    // return NULL;
 }
 
 /*

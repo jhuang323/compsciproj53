@@ -89,24 +89,41 @@ int main()
 
     //test calculations
 
-    // int retvv = calcminpayloadsize(12273);
+    int retvv = calcminpayloadsize(8161);
 
-    // printf("the return size %d\n",retvv);
+    printf("the return size %d\n",retvv);
 
-    // int thepagescaclc = calcpagenumbers(retvv + 16,1);
+    int thepagescaclc = calcpagenumbers(retvv + 16,0);
 
-    // printf("the page size is %d\n",thepagescaclc);
+    printf("the page size is %d\n",thepagescaclc);
 
     //test
-    ics_mem_init();
+    // ics_mem_init();
 
-    void * theretptr = ics_malloc(1);
-    ics_payload_print(theretptr);
+    // void * theretptr = ics_malloc(16);
+    // // theretptr = ics_malloc(1);
+    // ics_payload_print(theretptr);
+    // // ics_freelist_print();
 
-    theretptr = ics_malloc(2);
+    // theretptr = ics_malloc(10000);
+    // ics_payload_print(theretptr);
+    // theretptr = ics_malloc(30000);
 
-    ics_payload_print(theretptr);
-    // printf("%d \n",2|1);
+    // perror("The print error");
 
-    ics_mem_fini();
+    // theretptr = ics_malloc(1);
+    // theretptr = ics_malloc(1);
+    // char * thestrptr = ics_malloc(16);
+
+    // strcpy(thestrptr,"hellohellohellohellwjsbjdsbjsabjdsabjasdjb");
+
+    // printf("this is in the malloc str: %s\n",thestrptr);
+
+    // ics_payload_print(thestrptr);
+    // ics_freelist_print();
+    // // printf("%d \n",2|1);
+
+    // ics_mem_fini();
+
+    // printf("bit shift test %d\n",((15>>4)<<4) == 15);
 }
