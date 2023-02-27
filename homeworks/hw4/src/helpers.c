@@ -14,7 +14,7 @@ size_t calcminpayloadsize(size_t size)
         intdiv++;
     }
 
-    printf("the intdiv %d\n",intdiv);
+    // printf("the intdiv %d\n",intdiv);
 
     
 
@@ -46,7 +46,7 @@ int calcpagenumbers(int ablocksize,int pagesallocedalready)
                 thepagescalc += payloadwithoutfpage/4096 + 1;
             }
 
-            printf("int page calc div %d\n",thepagescalc);
+            // printf("int page calc div %d\n",thepagescalc);
 
             return thepagescalc;
 
@@ -95,13 +95,13 @@ void * findinlist(ics_free_header * afreelisthead,size_t theblocksize)
 
     while(themvfreeheadprt != NULL)
     {
-        printf("moving the pointer\n");
+        // printf("moving the pointer\n");
 
-        ics_header_print(themvfreeheadprt);
+        // ics_header_print(themvfreeheadprt); // only for debugging need to comment it out later
 
         size_t thecurrentblksize = (((themvfreeheadprt)->header)).block_size;
 
-        printf("the block size obtained is %ld\n",thecurrentblksize);
+        // printf("the block size obtained is %ld\n",thecurrentblksize);
 
         //check if the current node satisfy the blk size given!
         if(thecurrentblksize >= theblocksize)
@@ -130,7 +130,7 @@ void insertatheadoflist(ics_free_header ** afreelisthead,void * afreeheaderpoint
     //check if null
     if(*afreelisthead == NULL)
     {
-        printf("----------------------Inserting at front\n");
+        // printf("----------------------Inserting at front\n");
 
         ics_free_header * freehedptr = afreeheaderpointer;
 
@@ -180,7 +180,7 @@ void * removefromlist(ics_free_header ** afreelisthead,void * afreeheaderpointer
 
     if((givenfreeheadptr->next == NULL) && (givenfreeheadptr->prev == NULL))
     {
-        printf("only one node in list to remove\n");
+        // printf("only one node in list to remove\n");
 
         //set the listhead to null
         *afreelisthead = NULL;
@@ -191,7 +191,7 @@ void * removefromlist(ics_free_header ** afreelisthead,void * afreeheaderpointer
     {
         //prev is null node is at the front of list
 
-        printf("removing from the front\n");
+        // printf("removing from the front\n");
 
         //store the nextnode
         ics_free_header * nextfreenode = givenfreeheadptr->next;
@@ -212,7 +212,7 @@ void * removefromlist(ics_free_header ** afreelisthead,void * afreeheaderpointer
     else if(givenfreeheadptr->next == NULL)
     {
         //next is null so node is at back
-        printf("removing from the back\n");
+        // printf("removing from the back\n");
 
         //store the prevnode
         ics_free_header * prevfreenode = givenfreeheadptr->prev;
@@ -230,7 +230,7 @@ void * removefromlist(ics_free_header ** afreelisthead,void * afreeheaderpointer
     else
     {
         //the option that the node is in between two nodes
-        printf("removeing a node that is inbetween two nodes\n");
+        // printf("removeing a node that is inbetween two nodes\n");
 
         //store the next node
         ics_free_header * nextfreenode = givenfreeheadptr->next;

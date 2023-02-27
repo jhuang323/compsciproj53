@@ -43,7 +43,7 @@ void *ics_malloc(size_t size) {
         beginingofheap = thecurrbrk;
     }
 
-    printf("the current breakpoint %p\n",thecurrbrk);
+    // printf("the current breakpoint %p\n",thecurrbrk);
 
     size_t thecalcminpayloadsz = calcminpayloadsize(size);
 
@@ -67,14 +67,14 @@ void *ics_malloc(size_t size) {
 
         int numpagescalc = calcpagenumbers(thereqcalcblksize,allocpagecount);
 
-        printf("getting pages from mem %d\n",numpagescalc);
+        // printf("getting pages from mem %d\n",numpagescalc);
 
         void * thebegofheapbfinc = ics_inc_brk(numpagescalc);
 
         if(thebegofheapbfinc == ((void *)-1))
         {
             //when the request for more pages fails due to max limit
-            printf("warning the heap inc error\n");
+            // printf("warning the heap inc error\n");
 
             //set errno to ENOMEM
             errno = ENOMEM;
@@ -144,7 +144,7 @@ void *ics_malloc(size_t size) {
 
         //setup the epilogue
         char * theepiloguebrkptr = ics_get_brk();
-        printf("the brak is %p\n",ics_get_brk());
+        // printf("the brak is %p\n",ics_get_brk());
         theepiloguebrkptr -= 8;
         ((ics_header *) theepiloguebrkptr)->block_size = 1;
         ((ics_header *) theepiloguebrkptr)->hid = EPILOGUE_MAGIC;
@@ -155,7 +155,7 @@ void *ics_malloc(size_t size) {
         ((ics_footer *) theepiloguebrkptr)->block_size = thecalcsizefreeblk|0;
         ((ics_footer *) theepiloguebrkptr)->fid = FOOTER_MAGIC;
 
-        printf("the footerlocation %p\n",theepiloguebrkptr);
+        // printf("the footerlocation %p\n",theepiloguebrkptr);
 
 
 
@@ -263,7 +263,7 @@ void *ics_malloc(size_t size) {
         //adding to the pagecount global
         allocpagecount += numpagescalc;
 
-        printf("the global page count is %d\n",allocpagecount);
+        // printf("the global page count is %d\n",allocpagecount);
 
         
 
@@ -288,7 +288,7 @@ void *ics_malloc(size_t size) {
 
     size_t diffbetweenfreeandalloc = (((((ics_free_header *) thefreeblkofflistptr)->header)).block_size) - (thereqcalcblksize);
 
-    printf("the calculated block size %ld\n",diffbetweenfreeandalloc);
+    // printf("the calculated block size %ld\n",diffbetweenfreeandalloc);
 
     int thepaddingnum = 0;
     int theallocblocksizenum = thereqcalcblksize;
@@ -298,7 +298,7 @@ void *ics_malloc(size_t size) {
     if(diffbetweenfreeandalloc < 32)
     {
         //A splinter is present include it in padding
-        printf("Splintering detected!");
+        // printf("Splintering detected!");
 
         thepaddingnum = diffbetweenfreeandalloc;
 
@@ -430,7 +430,7 @@ int ics_free(void *ptr) {
     char * beforeepiloguebound = ics_get_brk() - 8;
     if(ptr < (void *)afterprologuebound || ptr > (void *)beforeepiloguebound)
     {
-        printf("error prologue/epilogue bounds check failed!\n");
+        // printf("error prologue/epilogue bounds check failed!\n");
 
         //set errno
         errno = EINVAL;
@@ -444,7 +444,7 @@ int ics_free(void *ptr) {
     if(thecurheaderst->hid != HEADER_MAGIC)
     {
         //error with header pid
-        printf("header pid is error\n");
+        // printf("header pid is error\n");
 
         //set errno
         errno = EINVAL;
@@ -455,7 +455,7 @@ int ics_free(void *ptr) {
     if(isblockfreed(thecurheaderst->block_size) == 1)
     {
         //header is freed error
-        printf("error header is freed\n");
+        // printf("error header is freed\n");
 
         //set errno
         errno = EINVAL;
@@ -473,7 +473,7 @@ int ics_free(void *ptr) {
     if(thecurfooterst->fid != FOOTER_MAGIC)
     {
         //error with footer pid
-        printf("footer pid is error\n");
+        // printf("footer pid is error\n");
 
         //set errno
         errno = EINVAL;
@@ -484,7 +484,7 @@ int ics_free(void *ptr) {
     if(isblockfreed(thecurfooterst->block_size) == 1)
     {
         //footer is freed error
-        printf("error footer is freed\n");
+        // printf("error footer is freed\n");
 
         //set errno
         errno = EINVAL;
@@ -495,7 +495,7 @@ int ics_free(void *ptr) {
     if(getactualblocksize(thecurheaderst->block_size) != getactualblocksize(thecurfooterst->block_size))
     {
         //error the block sizes of footer and header dont match
-        printf("mis match footer and header blk sizes\n");
+        // printf("mis match footer and header blk sizes\n");
 
         //set errno
         errno = EINVAL;
@@ -517,13 +517,14 @@ int ics_free(void *ptr) {
     //asize var to store currentsize for coalsecs
     uint64_t totalblksize = thecurheaderst->block_size;
 
+    //coalsesc in reverse
     //check block after current
     char * theblkaftercurrentheaderptr = thecurrgivenfooter + 8;
 
     //check if it is free 
     if(isblockfreed(((ics_header *) theblkaftercurrentheaderptr)->block_size) == 1)
     {
-        printf("can reverse coaleses \n");
+        // printf("can reverse coaleses \n");
         //the blk after current is free can reverse coalse
 
         //add to the total size
@@ -545,11 +546,39 @@ int ics_free(void *ptr) {
         
     }
 
+    // //forward coalscing
+    // char * theblkbeforecurrentfooterptr = thecurrgivenheader - 8; //set to the footerblk before current header
+
+    // //check if it is free
+    // if(isblockfreed(((ics_header *) theblkbeforecurrentfooterptr)->block_size) == 1)
+    // {
+    //     //coalse forware with blk before the current
+    //     printf("can coalse forward with block before current\n");
+
+    //     //add to the total size
+    //     totalblksize += ((ics_header *) theblkbeforecurrentfooterptr)->block_size;
+
+    //     //move the current header to point at the prev blk's header
+    //     thecurrgivenheader -= ((ics_header *) theblkbeforecurrentfooterptr)->block_size;
+
+    //     //remove the blk before from the free list
+    //     removefromlist(&freelist_head,thecurrgivenheader);
+
+    //     //update the current header and footer to the new size
+    //     //update the current header and footer to new size
+    //     ((ics_header *) thecurrgivenheader)->block_size = totalblksize;
+
+    //     //update the current footer
+    //     ((ics_footer *) thecurrgivenfooter)->block_size = totalblksize;
+    // }
+
+
     //at the end add to the freelist the current header
     insertatheadoflist(&freelist_head,thecurrgivenheader);
 
+    //after completion of free successfully return 0
 
-    return -99999;
+    return 0;
 
     
 }

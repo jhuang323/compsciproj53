@@ -101,7 +101,8 @@ int main()
     ics_mem_init();
 
     void * theretptr = ics_malloc(16);
-    ics_malloc(1);
+    void * theretptr2 = ics_malloc(32);
+    void * theretptr3 = ics_malloc(64);
     // // theretptr = ics_malloc(1);
     // ics_payload_print(theretptr);
     // // ics_freelist_print();
@@ -127,19 +128,37 @@ int main()
     // printf("test bit masking %d\n", getactualblocksize(theheadder->block_size));
 
     // ics_payload_print(thestrptr);
-    ics_freelist_print();
-    // printf("%d \n",2|1);
+    // ics_freelist_print();
+    // // printf("%d \n",2|1);
 
 
-    //test free
-    printf("testing the free section\n");
-    char * anullblktest = (char *)freelist_head + 8;
-    ics_free(theretptr);
+    // //test free
+    // printf("testing the free section\n");
+    // char * anullblktest = (char *)freelist_head + 8;
+    // ics_free(theretptr);
 
-    //print afterwards
-    ics_freelist_print();
+    // ics_free(theretptr3);
 
-    ics_mem_fini();
+    // ics_free(theretptr2);
+
+    // //print afterwards
+    // ics_freelist_print();
+
+    
 
     // printf("bit shift test %d\n",((15>>4)<<4) == 15);
+
+    //the grade scope tests
+    // printf("request 1 =================================\n");
+    // void *ptr0 = ics_malloc(5000);
+    // printf("request 2 =================================\n");
+    // void *ptr1 = ics_malloc(5000);
+    // printf("request 3 =================================\n");
+    // void *ptr2 = ics_malloc(5000);
+    // printf("request 4 =================================\n");
+    // void *ptr3 = ics_malloc(5000);
+    // printf("request 5 =================================\n");
+    // void *ptr4 = ics_malloc(5000);
+
+    ics_mem_fini();
 }
