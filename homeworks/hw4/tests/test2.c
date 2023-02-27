@@ -100,12 +100,22 @@ int main()
     //test
     ics_mem_init();
 
-    void * theretptr = ics_malloc(16);
-    void * theretptr2 = ics_malloc(32);
-    void * theretptr3 = ics_malloc(64);
+    void * theretptr = ics_malloc(4032);
+    // void * theretptr2 = ics_malloc(32);
+    // void * theretptr3 = ics_malloc(64);
     // // theretptr = ics_malloc(1);
     // ics_payload_print(theretptr);
-    // // ics_freelist_print();
+    ics_freelist_print();
+
+    printf("after the first mallco with 32b free block at end\n");
+    void * themal2 = ics_malloc(32);
+
+    printf("the debugging print statements\n");
+    ics_freelist_print();
+    printf("the payload debugging\n");
+    ics_payload_print(themal2);
+
+    
 
     // theretptr = ics_malloc(10000);
     // ics_payload_print(theretptr);

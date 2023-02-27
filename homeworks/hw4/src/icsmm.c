@@ -67,7 +67,7 @@ void *ics_malloc(size_t size) {
 
         int numpagescalc = calcpagenumbers(thereqcalcblksize,allocpagecount);
 
-        // printf("getting pages from mem %d\n",numpagescalc);
+        printf("getting pages from mem %d\n",numpagescalc);
 
         void * thebegofheapbfinc = ics_inc_brk(numpagescalc);
 
@@ -97,6 +97,8 @@ void *ics_malloc(size_t size) {
         }
 
         //set up the headers and footers for empty
+        //calc size
+        int thecalcsizefreeblk = 0;
         
         if(allocpagecount == 0)
         {
@@ -105,15 +107,42 @@ void *ics_malloc(size_t size) {
         }
         else
         {
+            //move the ptr to the epilogue to set to header
             themvheapptr -= 8;
+
+            //check the prev footer if it is free
+            char * theprevfooterptr = themvheapptr - 8;
+            printf("the prevfooter size is %d\n",((ics_footer *) theprevfooterptr)->block_size);
+            if(isblockfreed(((ics_footer *) theprevfooterptr)->block_size) == 1)
+            {
+                printf("the prev block before getting page is free \n");
+
+                //get the size from the footer
+                size_t theprevfootersize = ((ics_footer *) theprevfooterptr)->block_size;
+
+                //add the size to the calcsizefreeblk
+                thecalcsizefreeblk += theprevfootersize;
+                printf("the new thecalcsizefreeblk size %d\n",thecalcsizefreeblk);
+
+                //move the prevfooterptr back loweraddress by size-8 due to it pointing at the prevfooter
+                theprevfooterptr -= (theprevfootersize - 8);
+
+                //remove the prevfreeheader from freelist
+                removefromlist(&freelist_head,theprevfooterptr);
+
+                //set the mvheadptr to the prevfooterpointer which now points at blocks head
+                themvheapptr = theprevfooterptr;
+
+                
+
+            }
         }
 
         //store the freeblock header
         findinlistptr = themvheapptr;
 
         //set up the free block header
-        //calc size
-        int thecalcsizefreeblk = 0;
+        
         if(allocpagecount == 0)
         {
             thecalcsizefreeblk = 4096 * numpagescalc;
@@ -123,11 +152,12 @@ void *ics_malloc(size_t size) {
         }
         else
         {
-            thecalcsizefreeblk = 4096 * numpagescalc;//for the footer a the end
+            thecalcsizefreeblk += 4096 * numpagescalc;//for the footer a the end
             
         }
 
         // printf("the calc blk size %ld\n",thereqcalcblksize);
+        printf("the calcsizefreeblk after addition %d\n",thecalcsizefreeblk);
 
         //set up the header
         //alloc header
