@@ -32,7 +32,7 @@ void * storenodefortest = NULL;
  * an invalid request.
  */
 void *ics_malloc(size_t size) { 
-    // return NULL;
+    // return NULL; NOTE remove print statements
 
     //test getting more than 6 pages
     void * thecurrbrk = ics_get_brk();
