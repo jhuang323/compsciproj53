@@ -40,16 +40,33 @@ void run_client(char *server_addr_str, int server_port){
 
     sleep(1);
 
-    bzero(buffer, BUFFER_SIZE);
-    printf("Enter the message that sent to the server: ");
-    int n = 0;
-    while ((buffer[n++] = getchar()) != '\n' && n < BUFFER_SIZE){
-        ;
+    //my mod so that client sends message infintely
+    while(1)
+    {
+        bzero(buffer, BUFFER_SIZE);
+        printf("Enter the message that sent to the server: ");
+        int n = 0;
+        while ((buffer[n++] = getchar()) != '\n' && n < BUFFER_SIZE){
+            ;
+        }
+
+        //check for exit
+        printf("the buffer to be compared '%s'\n",buffer);
+        if(strcmp(buffer,"exit\n") == 0)
+        {
+            printf("exit has been recieveed\n");
+            break;
+        }
+
+        write(sockfd, buffer, n);
+        bzero(buffer, BUFFER_SIZE);
+        read(sockfd, buffer, BUFFER_SIZE);
+        printf("Message received from Server : %s", buffer);
+
+        
+
     }
-    write(sockfd, buffer, n);
-    bzero(buffer, BUFFER_SIZE);
-    read(sockfd, buffer, BUFFER_SIZE);
-    printf("Message received from Server : %s", buffer);
+    
 
     // close the socket
     close(sockfd);

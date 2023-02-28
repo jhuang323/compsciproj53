@@ -7,6 +7,14 @@
 
 static int the_number = 0;
 
+// void sigint_handler()
+// {
+//     printf("the sigint flag has been recieved!\n");
+//     close(clientfd);
+//     close(sockfd);
+
+// }
+
 void run_server(int server_port){
     int sockfd, clientfd, len;
     struct sockaddr_in servaddr, cli;
@@ -47,33 +55,78 @@ void run_server(int server_port){
 
     len = sizeof(cli);
 
-    // Wait and Accept the connection from client
-    clientfd = accept(sockfd, (SA*)&cli, &len);
-    if (clientfd < 0) {
-        printf("server acccept failed\n");
-        exit(EXIT_FAILURE);
-    }
-    else
-        printf("Client connetion accepted\n");
+    // // Wait and Accept the connection from client
+    // clientfd = accept(sockfd, (SA*)&cli, &len);
+    // if (clientfd < 0) {
+    //     printf("server acccept failed\n");
+    //     exit(EXIT_FAILURE);
+    // }
+    // else
+    //     printf("Client connetion accepted\n");
 
-    bzero(buffer, BUFFER_SIZE);
+    int eofflag = 1;
 
-    // wait and read the message from client, copy it in buffer
-    int received_size = read(clientfd, buffer, BUFFER_SIZE);
-    if (received_size < 0){
-        printf("Receiving failed\n");
-        exit(EXIT_FAILURE);
-    }
-    // print buffer which contains the client contents
-    printf("Receive message from client: %s", buffer);
+    while (1)
+    {
+        if(eofflag == 1)
+        {
 
-    // and send that buffer to client
-    int ret = write(clientfd, buffer, received_size);
-    if (ret < 0){
-        printf("Sending failed\n");
-        exit(EXIT_FAILURE);
+            // Wait and Accept the connection from client
+            clientfd = accept(sockfd, (SA*)&cli, &len);
+            if (clientfd < 0) {
+                printf("server acccept failed\n");
+                exit(EXIT_FAILURE);
+            }
+            else
+                printf("Client connetion accepted\n");
+
+            //set eof flag back to 0
+            eofflag = 0;
+
+        }
+        
+
+        bzero(buffer, BUFFER_SIZE);
+
+        // wait and read the message from client, copy it in buffer
+        int received_size = read(clientfd, buffer, BUFFER_SIZE);
+        if (received_size < 0){
+            printf("Receiving failed\n");
+            exit(EXIT_FAILURE);
+        }
+
+        //check for eof and terminate
+        if(received_size == 0)
+        {
+            printf("EOF has been recieved and the client has closed the connection\n");
+
+            //close the clientfd socket and call accept to wait for new connection
+            close(clientfd);
+            //set the eof flag to 1
+            eofflag = 1;
+
+            //continue to next iteration
+
+            // break;
+            continue;
+        }
+
+        // print buffer which contains the client contents
+        printf("Receive message from client: %s", buffer);
+
+        // and send that buffer to client
+        int ret = write(clientfd, buffer, received_size);
+        if (ret < 0){
+            printf("Sending failed\n");
+            exit(EXIT_FAILURE);
+        }
+        printf("Send the message back to client: %s", buffer);
+
+        
+
     }
-    printf("Send the message back to client: %s", buffer);
+
+    
 
     // Close the socket at the end
     close(clientfd);
