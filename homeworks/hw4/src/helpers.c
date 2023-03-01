@@ -180,7 +180,7 @@ void * removefromlist(ics_free_header ** afreelisthead,void * afreeheaderpointer
 
     if((givenfreeheadptr->next == NULL) && (givenfreeheadptr->prev == NULL))
     {
-        printf("only one node in list to remove\n");
+        // printf("only one node in list to remove\n");
 
         //set the listhead to null
         *afreelisthead = NULL;

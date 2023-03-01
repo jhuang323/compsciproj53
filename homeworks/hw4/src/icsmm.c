@@ -67,7 +67,7 @@ void *ics_malloc(size_t size) {
 
         int numpagescalc = calcpagenumbers(thereqcalcblksize,allocpagecount);
 
-        printf("getting pages from mem %d\n",numpagescalc);
+        // printf("getting pages from mem %d\n",numpagescalc);
 
         void * thebegofheapbfinc = ics_inc_brk(numpagescalc);
 
@@ -112,17 +112,17 @@ void *ics_malloc(size_t size) {
 
             //check the prev footer if it is free
             char * theprevfooterptr = themvheapptr - 8;
-            printf("the prevfooter size is %d\n",((ics_footer *) theprevfooterptr)->block_size);
+            // printf("the prevfooter size is %d\n",((ics_footer *) theprevfooterptr)->block_size);
             if(isblockfreed(((ics_footer *) theprevfooterptr)->block_size) == 1)
             {
-                printf("the prev block before getting page is free \n");
+                // printf("the prev block before getting page is free \n");
 
                 //get the size from the footer
                 size_t theprevfootersize = ((ics_footer *) theprevfooterptr)->block_size;
 
                 //add the size to the calcsizefreeblk
                 thecalcsizefreeblk += theprevfootersize;
-                printf("the new thecalcsizefreeblk size %d\n",thecalcsizefreeblk);
+                // printf("the new thecalcsizefreeblk size %d\n",thecalcsizefreeblk);
 
                 //move the prevfooterptr back loweraddress by size-8 due to it pointing at the prevfooter
                 theprevfooterptr -= (theprevfootersize - 8);
@@ -157,7 +157,7 @@ void *ics_malloc(size_t size) {
         }
 
         // printf("the calc blk size %ld\n",thereqcalcblksize);
-        printf("the calcsizefreeblk after addition %d\n",thecalcsizefreeblk);
+        // printf("the calcsizefreeblk after addition %d\n",thecalcsizefreeblk);
 
         //set up the header
         //alloc header
