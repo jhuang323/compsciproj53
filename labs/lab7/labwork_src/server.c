@@ -98,7 +98,7 @@ void run_server(int server_port){
         //check for eof and terminate
         if(received_size == 0)
         {
-            printf("EOF has been recieved and the client has closed the connection\n");
+            // printf("EOF has been recieved and the client has closed the connection\n");
 
             //close the clientfd socket and call accept to wait for new connection
             close(clientfd);
@@ -107,7 +107,7 @@ void run_server(int server_port){
 
             //continue to next iteration
 
-            // break;
+            // continue to the next iteration and accept connections
             continue;
         }
 

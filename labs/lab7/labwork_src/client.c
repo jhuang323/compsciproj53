@@ -51,10 +51,10 @@ void run_client(char *server_addr_str, int server_port){
         }
 
         //check for exit
-        printf("the buffer to be compared '%s'\n",buffer);
+        // printf("the buffer to be compared '%s'\n",buffer);
         if(strcmp(buffer,"exit\n") == 0)
         {
-            printf("exit has been recieveed\n");
+            // printf("exit has been recieveed\n");
             break;
         }
 
