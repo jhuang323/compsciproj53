@@ -1178,11 +1178,13 @@ int main(int argc, char* argv[]) {
 						close(thepipelist[bottomcounter-2]);
 						//test close read??
 						// close(thepipelist[bottomcounter-3]);
-						//sleep  micro sec to avoid race conditons where two proc are trying to write to a file and it is never written
-						usleep(500);
+						
 
 						
 					}
+
+					//sleep  micro sec to avoid race conditons where two proc are trying to write to a file and it is never written
+					usleep(500);
 
 					//test waiting for the child that just spawned to finished!
 					// printf("waiting for last to die\n");

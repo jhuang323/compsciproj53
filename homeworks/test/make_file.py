@@ -21,7 +21,7 @@ def main(argv):
 
     foutfle = open(outputfile,"w")
     #over write or create and write
-    foutfle.write(contents)
+    foutfle.write(contents + "\n")
     #close file
     foutfle.close()
 
