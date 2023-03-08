@@ -122,6 +122,13 @@ int main(int argc, char* argv[]) {
     
     }
 
+    //check of num argument is negative
+    if(NUM_arg < 0)
+    {
+        //numarg is negative return 1
+        return 1;
+    }
+
     // printf("ALLOWED !%d\n",NUM_arg);
 
     //check if input file can be opened
