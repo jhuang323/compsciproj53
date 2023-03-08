@@ -177,8 +177,8 @@ int main(int argc, char* argv[]) {
 		//if the error check is notvalid print msg
 		if(retvval == 0)
 		{
-			//print error
-			printf(RD_ERR);
+			//print error to stderr
+			fprintf(stderr,RD_ERR);
 
 			//terminate shell afterwards no
 			free(line);
@@ -1064,7 +1064,7 @@ int main(int argc, char* argv[]) {
 							//in the second ... child
 
 							// printf("in middle chlid %d\n",bottomcounter);
-							// printf("the command: !!!!!!!! %s\n",proc->cmd);
+							// printf("the command: !!!!!!!! %s %s\n",proc->cmd,proc->argv[1]);
 
 							//close read and write
 							close(STDIN_FILENO);
@@ -1142,7 +1142,7 @@ int main(int argc, char* argv[]) {
 					
 
 					//printing pid
-					// printf("a pid: %d\n",mpid);
+					// printf("a  previous spawned pid: %d\n",mpid);
 					
 					// //close ?
 					// close(thepipelist[1]);
@@ -1172,12 +1172,22 @@ int main(int argc, char* argv[]) {
 					//close test pipes write end
 					if(i != 0)
 					{
-					// 	// wait(NULL);
+						
+						
 						// printf("closing %d\n",(bottomcounter-2));
 						close(thepipelist[bottomcounter-2]);
 						//test close read??
-						close(thepipelist[bottomcounter-3]);
+						// close(thepipelist[bottomcounter-3]);
+						//sleep  micro sec to avoid race conditons where two proc are trying to write to a file and it is never written
+						usleep(500);
+
+						
 					}
+
+					//test waiting for the child that just spawned to finished!
+					// printf("waiting for last to die\n");
+					// wait(NULL);
+					// printf("last child spawned dies\n");
 
 					//update counter
 					bottomcounter += 2;
@@ -1192,13 +1202,24 @@ int main(int argc, char* argv[]) {
 				}//end of for loop
 				//in the parent
 
-				//close all pipes in parent
-				// int cntdel = 0;
-				// for(int i = 0;i<(job->nproc - 1);i++)
+				//test close 
+
+				//test close the write pipes
+				// int cntdelw = 1;
+				// printf("the calc outpipes %d\n",cntdelw);
+				// for(int i = 0;i<(job->nproc-1);i++)
 				// {
-				// 	close(thepipelist[cntdel]);
-				// 	cntdel += 2;
+				// 	close(thepipelist[cntdelw]);
+				// 	cntdelw += 2;
 				// }
+
+				// close all pipes in parent
+				int cntdel = 0;
+				for(int i = 0;i<(job->nproc - 1);i++)
+				{
+					close(thepipelist[cntdel]);
+					cntdel += 2;
+				}
 
 				
 
